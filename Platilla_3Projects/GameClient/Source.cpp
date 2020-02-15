@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include "Graphics.h"
 
-#define SERVER_IP "192.168.56.1"
+#define SERVER_IP "192.168.1.45"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -19,6 +19,7 @@ int main()
 	Graphics g;
 	g.DrawDungeon();*/
 	std::string nickname;
+	bool connected = false;
 
 	std::cout << "Bienvenido a CLUEDO, escoge tu nombre:\n";
 	std::cin >> nickname;
@@ -36,6 +37,24 @@ int main()
 		std::cout << "Se ha establecido conexion\n";
 		packet << "READY" << nickname;
 		socket.send(packet);
+		connected = true;
+
+		while (connected)
+		{
+			std::string command, data, username;
+			packet.clear();
+			if (socket.receive(packet) == sf::Socket::Done)
+			{
+				system("CLS");
+				packet >> command >> data >> username;
+				//std::cout << username << " has joined the game" << std::endl;
+				std::cout << data;
+				if (command == "STATUS" && data == "Start game")
+				{
+					//Empieza el game
+				}
+			}
+		}
 	}
 
 	return 0;

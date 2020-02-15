@@ -7,7 +7,7 @@
 
 ///// SERVER /////
 
-void ClientState(std::string _command, std::string _data) {
+void AddNewPlayer(std::list<PlayerInfo> &_players, std::string _username) {
 	
 }
 
@@ -25,9 +25,12 @@ int main()
 		exit(0);
 	}
 	// Creamos lista de clientes
+	int numPlayers = 0;
 	std::list<sf::TcpSocket*> clients;	
 	std::list<PlayerInfo> players;	
+	std::list<std::string> usernames;
 	sf::SocketSelector selector;
+	sf::Packet packet;
 	selector.add(listener);
 
 	while (serverRunning)
@@ -44,6 +47,7 @@ int main()
 					std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
 					clients.push_back(client);
 					selector.add(*client);
+					numPlayers++;
 				}
 				else
 				{
@@ -70,7 +74,7 @@ int main()
 							packet >> command >> data;
 
 							if (command == "READY") {
-								
+								usernames.push_back(data);
 							}
 						}
 						else if (status == sf::Socket::Disconnected)
@@ -82,6 +86,27 @@ int main()
 						{
 							std::cout << "Error al recibir de " << client.getRemotePort() << std::endl;
 						}
+					}
+				}
+
+				packet.clear();
+
+				if (numPlayers >= 3) //mirar si hay mas de 3 clientes
+				{
+					packet << "STATUS" << "Start game" << usernames.back();
+					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+					{
+						sf::TcpSocket& client = **it;
+						client.send(packet);
+					}
+				}
+				else
+				{
+					packet << "STATUS" << "Waiting for players" << usernames.back();
+					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+					{
+						sf::TcpSocket& client = **it;
+						client.send(packet);
 					}
 				}
 			}
