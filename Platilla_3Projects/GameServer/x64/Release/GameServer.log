@@ -1,7 +1,7 @@
 ﻿  Source.cpp
-  Generating code
-  30 of 30 functions (100.0%) were compiled.
-    0 functions were new in current compilation
+  Generando código
+  109 of 109 functions (100.0%) were compiled.
+    82 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  GameServer.vcxproj -> C:\Users\Carmen\Downloads\Platilla_3Projects (1)\Platilla_3Projects\x64\Release\GameServer.exe
+  Generación de código finalizada
+  GameServer.vcxproj -> C:\Users\Mario\source\repos\PracticaRedes\Platilla_3Projects\x64\Release\GameServer.exe
