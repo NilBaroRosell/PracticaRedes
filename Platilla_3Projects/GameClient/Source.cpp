@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.131"
+#define SERVER_IP "192.168.1.134"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -63,6 +63,24 @@ int main()
 						packet >> data;
 						std::cout << data << " has joined" << std::endl;
 						std::cout << "Start game" << std::endl;
+						break;
+					case Comands::ROOM_FOUND:
+						packet >> data;
+						std::cout << "Room " << data << " has been found" << std::endl;
+						std::cout << "Do you want to make a deduction? (Y/N)" << std::endl;
+						packet.clear();
+						std::string answer;
+						while (answer != "y" || answer != "Y" || answer != "N" || answer != "n")
+						{
+							answer.clear();
+							std::cin >> answer;
+						}
+						bool wantDeduction;
+						if (answer == "y" || answer == "Y") wantDeduction = true;
+						else wantDeduction = false;
+						packet << static_cast<int32_t>(Comands::DEDUCTION) << wantDeduction;
+						socket.send(packet);
+						system("CLS");
 						break;
 					default:
 						break;
