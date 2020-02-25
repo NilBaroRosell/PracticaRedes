@@ -7,8 +7,9 @@
 #include <vector>
 #include <fcntl.h>
 #include "Graphics.h"
+#include <Types.h>
 
-#define SERVER_IP "192.168.1.45"
+#define SERVER_IP "192.168.1.131"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -35,24 +36,38 @@ int main()
 	else
 	{
 		std::cout << "Se ha establecido conexion\n";
-		packet << "READY" << nickname;
+		packet << static_cast<int32_t>(Comands::START) << nickname;
 		socket.send(packet);
 		connected = true;
+		system("CLS");
+		int aux;
+		Comands comand;
+		std::string data;
 
 		while (connected)
 		{
-			std::string command, data, username;
+
 			packet.clear();
 			if (socket.receive(packet) == sf::Socket::Done)
 			{
-				system("CLS");
-				packet >> command >> data >> username;
-				//std::cout << username << " has joined the game" << std::endl;
-				std::cout << data;
-				if (command == "STATUS" && data == "Start game")
+				packet >> aux;
+				comand = (Comands)aux;
+				switch (comand)
 				{
-					//Empieza el game
+					case Comands::WAIT:
+						packet >> data;
+						std::cout << data << " has joined" << std::endl;
+						std::cout << "Waiting for players" << std::endl;
+						break;
+					case Comands::START:
+						packet >> data;
+						std::cout << data << " has joined" << std::endl;
+						std::cout << "Start game" << std::endl;
+						break;
+					default:
+						break;
 				}
+				//std::cout << username << " has joined the game" << std::endl;
 			}
 		}
 	}

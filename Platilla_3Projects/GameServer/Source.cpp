@@ -3,6 +3,7 @@
 #include <SFML\Graphics.hpp>
 #include <SFML\Network.hpp>
 #include <PlayerInfo.h>
+#include <Types.h>
 #include <list>
 
 ///// SERVER /////
@@ -69,12 +70,18 @@ int main()
 						status = client.receive(packet);
 						if (status == sf::Socket::Done)
 						{
-							std::string command;
+							int aux;
+							Comands comand;
 							std::string data;
-							packet >> command >> data;
-
-							if (command == "READY") {
-								usernames.push_back(data);
+							packet >> aux >> data;
+							comand = (Comands)aux;
+							switch (comand)
+							{
+								case Comands::START:
+									usernames.push_back(data);
+									break;
+								default:
+									break;
 							}
 						}
 						else if (status == sf::Socket::Disconnected)
@@ -92,17 +99,20 @@ int main()
 				packet.clear();
 
 				if (numPlayers >= 3) //mirar si hay mas de 3 clientes
-				{
-					packet << "STATUS" << "Start game" << usernames.back();
+				{ 
 					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 					{
+						//tirar daus
+						//mirar si hi ha clue card
+						packet << static_cast<int32_t>(Comands::START) << usernames.back();
 						sf::TcpSocket& client = **it;
 						client.send(packet);
+						packet.clear();
 					}
 				}
 				else
 				{
-					packet << "STATUS" << "Waiting for players" << usernames.back();
+					packet << static_cast<int32_t>(Comands::WAIT) << usernames.back();
 					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 					{
 						sf::TcpSocket& client = **it;
