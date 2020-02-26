@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.134"
+#define SERVER_IP "10.40.0.127"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -28,6 +28,8 @@ int main()
 	sf::TcpSocket socket;
 	sf::Packet packet;
 	sf::Socket::Status status = socket.connect(SERVER_IP, SERVER_PORT, sf::milliseconds(15.f));
+	std::vector<card> myCards;
+
 	if (status != sf::Socket::Done)
 	{
 		std::cout << "Error al establecer conexion\n";
@@ -69,7 +71,7 @@ int main()
 						std::cout << "Room " << data << " has been found" << std::endl;
 						std::cout << "Do you want to make a deduction? (Y/N)" << std::endl;
 						packet.clear();
-						std::string answer;
+						std::string answer = "jaja";
 						while (answer != "y" || answer != "Y" || answer != "N" || answer != "n")
 						{
 							answer.clear();
@@ -78,11 +80,65 @@ int main()
 						bool wantDeduction;
 						if (answer == "y" || answer == "Y") wantDeduction = true;
 						else wantDeduction = false;
-						packet << static_cast<int32_t>(Comands::DEDUCTION) << wantDeduction;
+
+						std::vector<std::string> character, weapon, room;
+
+						for (auto _card : full_Deck)
+						{
+							switch (_card.type)
+							{
+							case CardType::CHARACTER:
+								character.push_back(_card.name);
+								break;
+							case CardType::WEAPON:
+								weapon.push_back(_card.name);
+								break;
+							case CardType::ROOM:
+								room.push_back(_card.name);
+								break;
+							default:
+								break;
+							}
+						}
+
+						std::cout << "SELECT A CHARACTER" << std::endl;
+						for (int i = 0; character.size(); i++)
+							std::cout << i + 1 << "-" << character[i] << std::endl;
+
+						int cardAnswer = 0;
+
+						while (cardAnswer < 1 || cardAnswer > character.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << static_cast<int32_t>(Comands::DEDUCTION) << wantDeduction << character[cardAnswer-1];
+
+						cardAnswer = 0;
+						system("CLS");
+						std::cout << "SELECT A WEAPON" << std::endl;
+						for (int i = 0; weapon.size(); i++)
+							std::cout << i + 1 << "-" << weapon[i] << std::endl;
+
+						while (cardAnswer < 1 || cardAnswer > weapon.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << weapon[cardAnswer - 1];
+
+						cardAnswer = 0;
+						system("CLS");
+						std::cout << "SELECT A ROOM" << std::endl;
+						for (int i = 0; room.size(); i++)
+							std::cout << i + 1 << "-" << room[i] << std::endl;
+
+						while (cardAnswer < 1 || cardAnswer > room.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << room[cardAnswer - 1];
+
 						socket.send(packet);
 						system("CLS");
-						break;
-					default:
 						break;
 				}
 				//std::cout << username << " has joined the game" << std::endl;

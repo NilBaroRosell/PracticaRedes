@@ -12,10 +12,44 @@ void AddNewPlayer(std::list<PlayerInfo> &_players, std::string _username) {
 	
 }
 
+void initializeCards()
+{
+	//Characters
+	full_Deck.push_back({ "Prado", CardType::CHARACTER });
+	full_Deck.push_back({ "Rubio", CardType::CHARACTER });
+	full_Deck.push_back({ "Orquídea", CardType::CHARACTER });
+	full_Deck.push_back({ "Celeste", CardType::CHARACTER });
+	full_Deck.push_back({ "Mora", CardType::CHARACTER });
+	full_Deck.push_back({ "Amapola", CardType::CHARACTER });
+
+	//Weapons
+	full_Deck.push_back({ "Candelabro", CardType::WEAPON });
+	full_Deck.push_back({ "Puñal", CardType::WEAPON });
+	full_Deck.push_back({ "Tubería de plomo", CardType::WEAPON });
+	full_Deck.push_back({ "Pistola", CardType::WEAPON });
+	full_Deck.push_back({ "Cuerda", CardType::WEAPON });
+	full_Deck.push_back({ "Herramienta", CardType::WEAPON });
+
+	//Rooms
+	full_Deck.push_back({ "Sala de baile", CardType::ROOM });
+	full_Deck.push_back({ "Sala de billar", CardType::ROOM });
+	full_Deck.push_back({ "Invernadero", CardType::ROOM });
+	full_Deck.push_back({"Comedor", CardType::ROOM });
+	full_Deck.push_back({ "Vestíbulo", CardType::ROOM });
+	full_Deck.push_back({ "Cocina", CardType::ROOM });
+	full_Deck.push_back({ "Biblioteca", CardType::ROOM });
+	full_Deck.push_back({ "Salón", CardType::ROOM });
+	full_Deck.push_back({ "Estudio", CardType::ROOM });
+}
+
 int main()
 {
 	// Controla que el servidor este abierto
 	bool serverRunning = true;
+
+	//Inicializar todas las cartas
+	initializeCards();
+
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
