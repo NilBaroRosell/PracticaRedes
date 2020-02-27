@@ -24,7 +24,7 @@ void initializeCards()
 
 	//Weapons
 	full_Deck.push_back({ "Candelabro", CardType::WEAPON });
-	full_Deck.push_back({ "Puñal", CardType::WEAPON });
+	full_Deck.push_back({ "Punal", CardType::WEAPON });
 	full_Deck.push_back({ "Tuberia de plomo", CardType::WEAPON });
 	full_Deck.push_back({ "Pistola", CardType::WEAPON });
 	full_Deck.push_back({ "Cuerda", CardType::WEAPON });
@@ -62,33 +62,51 @@ void shuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
 	}
 }
 
-void takeFinalCards(std::vector<card> &_finalCards, std::vector<card> _shuffledCards)
+void takeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffledCards)
 {
 	bool hasCharacter = false;
 	bool hasWeapon = false;
 	bool hasRoom = false;
 
-	for (auto card : _shuffledCards)
+	for (auto it = _shuffledCards.begin(); it != _shuffledCards.end(); it++)
 	{
-		if (!hasCharacter && card.type == CardType::CHARACTER)
+		if (!hasCharacter && it->type == CardType::CHARACTER)
 		{
-			_finalCards.push_back(card);
+			_finalCards.push_back(*it);
+			_shuffledCards.erase(it);
 			hasCharacter = true;
 		}
-		else if (!hasWeapon && card.type == CardType::WEAPON)
+		else if (!hasWeapon && it->type == CardType::WEAPON)
 		{
-			_finalCards.push_back(card);
+			_finalCards.push_back(*it);
+			_shuffledCards.erase(it);
 			hasWeapon = true;
 		}
-		else if (!hasRoom && card.type == CardType::ROOM)
+		else if (!hasRoom && it->type == CardType::ROOM)
 		{
-			_finalCards.push_back(card);
+			_finalCards.push_back(*it);
+			_shuffledCards.erase(it);
 			hasRoom = true;
 		}
 
 		if (hasCharacter && hasWeapon && hasRoom)
 		{
 			break;
+		}
+	}
+}
+
+void assignCards(std::vector<card> shuffledCards, std::vector<card> _playersCards[], int _numPlayers)
+{
+	int i = 0;
+	while (!shuffledCards.empty())
+	{
+		_playersCards[i].push_back(shuffledCards.front());
+		shuffledCards.erase(shuffledCards.begin());
+		i++;
+		if (i > _numPlayers)
+		{
+			i = 0;
 		}
 	}
 }
@@ -105,6 +123,7 @@ int main()
 	std::vector<card> finalCards;
 	shuffleCards(shuffledCards, full_Deck);
 	takeFinalCards(finalCards, shuffledCards);
+	std::vector<card> playerCards[6];
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
@@ -116,6 +135,7 @@ int main()
 	}
 	// Creamos lista de clientes
 	int numPlayers = 0;
+
 	std::list<sf::TcpSocket*> clients;	
 	std::list<PlayerInfo> players;	
 	std::list<std::string> usernames;
@@ -189,14 +209,21 @@ int main()
 
 				if (numPlayers >= 3) //mirar si hay mas de 3 clientes
 				{ 
+					std::cout << numPlayers << std::endl;
+					assignCards(shuffledCards, playerCards, numPlayers - 1);
+					int i = 0;
 					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 					{
-						//tirar daus
-						//mirar si hi ha clue card
-						packet << static_cast<int32_t>(Comands::START) << usernames.back();
+						std::cout << playerCards[i].size() << std::endl;
+						packet << static_cast<int32_t>(Comands::START) << usernames.back() << static_cast<int32_t>(playerCards[i].size());
+						for (auto it = playerCards[i].begin(); it != playerCards[i].end(); it++)
+						{
+							packet << it->name << static_cast<int32_t>(it->type);
+						}
 						sf::TcpSocket& client = **it;
 						client.send(packet);
 						packet.clear();
+						i++;
 					}
 				}
 				else

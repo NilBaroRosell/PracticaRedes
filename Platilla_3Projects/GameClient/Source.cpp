@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.122.62"
+#define SERVER_IP "192.168.1.131"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -45,6 +45,8 @@ int main()
 		int aux;
 		Comands comand;
 		std::string data;
+		std::string name;
+		CardType type;
 
 		while (connected)
 		{
@@ -62,9 +64,22 @@ int main()
 						std::cout << "Waiting for players" << std::endl;
 						break;
 					case Comands::START:
-						packet >> data;
+						int numCards;
+						packet >> data >> numCards;
 						std::cout << data << " has joined" << std::endl;
 						std::cout << "Start game" << std::endl;
+						for (int i = 0; i < numCards; i++)
+						{
+							packet >> name >> aux;
+							type = (CardType)aux;
+							myCards.push_back({ name, type });
+						}
+
+						for (auto card : myCards)
+						{
+							std::cout << card.name << std::endl;
+						}
+						packet.clear();
 						break;
 					case Comands::ROOM_FOUND:
 						packet >> data;
