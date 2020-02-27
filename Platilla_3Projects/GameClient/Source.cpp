@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "10.40.0.127"
+#define SERVER_IP "192.168.122.62"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////

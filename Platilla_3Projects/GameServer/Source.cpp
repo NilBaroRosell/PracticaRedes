@@ -17,7 +17,7 @@ void initializeCards()
 	//Characters
 	full_Deck.push_back({ "Prado", CardType::CHARACTER });
 	full_Deck.push_back({ "Rubio", CardType::CHARACTER });
-	full_Deck.push_back({ "Orquídea", CardType::CHARACTER });
+	full_Deck.push_back({ "Orquidea", CardType::CHARACTER });
 	full_Deck.push_back({ "Celeste", CardType::CHARACTER });
 	full_Deck.push_back({ "Mora", CardType::CHARACTER });
 	full_Deck.push_back({ "Amapola", CardType::CHARACTER });
@@ -25,7 +25,7 @@ void initializeCards()
 	//Weapons
 	full_Deck.push_back({ "Candelabro", CardType::WEAPON });
 	full_Deck.push_back({ "Puñal", CardType::WEAPON });
-	full_Deck.push_back({ "Tubería de plomo", CardType::WEAPON });
+	full_Deck.push_back({ "Tuberia de plomo", CardType::WEAPON });
 	full_Deck.push_back({ "Pistola", CardType::WEAPON });
 	full_Deck.push_back({ "Cuerda", CardType::WEAPON });
 	full_Deck.push_back({ "Herramienta", CardType::WEAPON });
@@ -35,21 +35,76 @@ void initializeCards()
 	full_Deck.push_back({ "Sala de billar", CardType::ROOM });
 	full_Deck.push_back({ "Invernadero", CardType::ROOM });
 	full_Deck.push_back({"Comedor", CardType::ROOM });
-	full_Deck.push_back({ "Vestíbulo", CardType::ROOM });
+	full_Deck.push_back({ "Vestibulo", CardType::ROOM });
 	full_Deck.push_back({ "Cocina", CardType::ROOM });
 	full_Deck.push_back({ "Biblioteca", CardType::ROOM });
-	full_Deck.push_back({ "Salón", CardType::ROOM });
+	full_Deck.push_back({ "Salon", CardType::ROOM });
 	full_Deck.push_back({ "Estudio", CardType::ROOM });
+}
+
+void shuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
+{
+	while(!_deck.empty())
+	{
+		//agafar random
+		int ran = rand() % _deck.size();
+
+		_shuffledCards.push_back(_deck[ran]);
+
+		for (auto it = _deck.begin(); it != _deck.end(); it++)
+		{
+			if (it->name == _deck[ran].name)
+			{
+				_deck.erase(it);
+				break;
+			}
+		}
+	}
+}
+
+void takeFinalCards(std::vector<card> &_finalCards, std::vector<card> _shuffledCards)
+{
+	bool hasCharacter = false;
+	bool hasWeapon = false;
+	bool hasRoom = false;
+
+	for (auto card : _shuffledCards)
+	{
+		if (!hasCharacter && card.type == CardType::CHARACTER)
+		{
+			_finalCards.push_back(card);
+			hasCharacter = true;
+		}
+		else if (!hasWeapon && card.type == CardType::WEAPON)
+		{
+			_finalCards.push_back(card);
+			hasWeapon = true;
+		}
+		else if (!hasRoom && card.type == CardType::ROOM)
+		{
+			_finalCards.push_back(card);
+			hasRoom = true;
+		}
+
+		if (hasCharacter && hasWeapon && hasRoom)
+		{
+			break;
+		}
+	}
 }
 
 int main()
 {
+	srand(time(NULL));
 	// Controla que el servidor este abierto
 	bool serverRunning = true;
 
 	//Inicializar todas las cartas
 	initializeCards();
-
+	std::vector<card> shuffledCards;
+	std::vector<card> finalCards;
+	shuffleCards(shuffledCards, full_Deck);
+	takeFinalCards(finalCards, shuffledCards);
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
