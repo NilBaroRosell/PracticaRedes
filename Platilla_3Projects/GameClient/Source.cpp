@@ -9,16 +9,16 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.131"
+#define SERVER_IP "10.40.0.133"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
 
 int main()
 {
-	/*PlayerInfo playerInfo;
+	PlayerInfo playerInfo;
 	Graphics g;
-	g.DrawDungeon();*/
+	
 	std::string nickname;
 	bool connected = false;
 
@@ -38,7 +38,7 @@ int main()
 	else
 	{
 		std::cout << "Se ha establecido conexion\n";
-		packet << static_cast<int32_t>(Comands::START) << nickname;
+		packet << static_cast<int32_t>(Comands::READY) << nickname;
 		socket.send(packet);
 		connected = true;
 		system("CLS");
@@ -48,9 +48,10 @@ int main()
 		std::string name;
 		CardType type;
 
+		g.InitDungeon();
+
 		while (connected)
 		{
-
 			packet.clear();
 			if (socket.receive(packet) == sf::Socket::Done)
 			{
@@ -158,7 +159,9 @@ int main()
 				}
 				//std::cout << username << " has joined the game" << std::endl;
 			}
+			g.DrawDungeon();
 		}
+		g.ClearDungeon();
 	}
 
 	return 0;

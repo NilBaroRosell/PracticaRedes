@@ -9,3 +9,6 @@ struct card {
 };
 
 std::vector<card> full_Deck;
+
+const int ROWS = 40;
+const int COLUMNS = 30;

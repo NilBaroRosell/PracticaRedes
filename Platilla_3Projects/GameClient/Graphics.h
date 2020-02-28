@@ -62,9 +62,14 @@ class Graphics
 {
 	std::array<Sala, NUM_SALAS> salas;
 	Sala centroMensajes;
+private:
+	sf::RenderWindow* _window;
+	sf::RectangleShape* shape;
 public:
 	Graphics();
+	void InitDungeon();
 	void DrawDungeon();
+	void ClearDungeon();
 	~Graphics();
 };
 

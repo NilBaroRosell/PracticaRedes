@@ -42,6 +42,11 @@ void initializeCards()
 	full_Deck.push_back({ "Estudio", CardType::ROOM });
 }
 
+/*void initializeBoard()
+{
+
+}*/
+
 void shuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
 {
 	while(!_deck.empty())
@@ -119,6 +124,7 @@ int main()
 
 	//Inicializar todas las cartas
 	initializeCards();
+	//initializeBoard();
 	std::vector<card> shuffledCards;
 	std::vector<card> finalCards;
 	shuffleCards(shuffledCards, full_Deck);
@@ -186,7 +192,7 @@ int main()
 							comand = (Comands)aux;
 							switch (comand)
 							{
-								case Comands::START:
+								case Comands::READY:
 									usernames.push_back(data);
 									break;
 								default:

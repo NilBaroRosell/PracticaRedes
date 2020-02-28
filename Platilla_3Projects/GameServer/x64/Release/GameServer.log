@@ -1,8 +1,8 @@
 ﻿  Source.cpp
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(116): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
-  Generando código
-  1 of 356 functions ( 0.3%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
+c:\users\nil.baro\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(121): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  Generating code
+  352 of 356 functions (98.9%) were compiled, the rest were copied from previous compilation.
+    2 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
-  Generación de código finalizada
-  GameServer.vcxproj -> C:\Users\nbr19\Desktop\Redes\PracticaRedes\Platilla_3Projects\x64\Release\GameServer.exe
+  Finished generating code
+  GameServer.vcxproj -> C:\Users\nil.baro\Desktop\Redes\PracticaRedes\Platilla_3Projects\x64\Release\GameServer.exe

@@ -30,27 +30,31 @@ Graphics::Graphics()
 	centroMensajes.longitud.y = 6;
 }
 
+void Graphics::InitDungeon()
+{
+	_window = new sf::RenderWindow(sf::VideoMode(800, 600), "Ventanita");
+	shape = new sf::RectangleShape(sf::Vector2f(SIZE, SIZE));
+	shape->setOutlineColor(sf::Color::Black);
+	shape->setOutlineThickness(2.f);
+}
+
 void Graphics::DrawDungeon()
 {
-	sf::RenderWindow _window(sf::VideoMode(800, 600), "Ventanita");
-	sf::RectangleShape shape(sf::Vector2f(SIZE, SIZE));
-	shape.setOutlineColor(sf::Color::Black);
-	shape.setOutlineThickness(2.f);
-	while (_window.isOpen())
+	if (_window->isOpen())
 	{
 		sf::Event event;
 		bool playerMoved = false;
-		while (_window.pollEvent(event))
+		while (_window->pollEvent(event))
 		{
 			switch (event.type)
 			{
 			case sf::Event::Closed:
-				_window.close();
+				_window->close();
 				break;
 			case sf::Event::KeyPressed:
 				if (event.key.code == sf::Keyboard::Escape)
 				{
-					_window.close();
+					_window->close();
 				}
 				if (event.key.code == sf::Keyboard::Left)
 				{
@@ -71,26 +75,26 @@ void Graphics::DrawDungeon()
 				break;
 			}
 		}
-		_window.clear();
+		_window->clear();
 		for (int i = 0; i < W_WINDOW_TITLE; i++)
 		{
 			for (int j = 0; j < H_WINDOW_TITLE; j++)
 			{
 
-				shape.setFillColor(sf::Color(90, 90, 90, 255));
+				shape->setFillColor(sf::Color(90, 90, 90, 255));
 
 
-				shape.setPosition(sf::Vector2f(i*SIZE, j*SIZE));
-				_window.draw(shape);
+				shape->setPosition(sf::Vector2f(i*SIZE, j*SIZE));
+				_window->draw(*shape);
 			}
 		}
 
 		for (size_t i = 0; i < salas.size(); i++)
 		{
-			salas[i].Draw(_window);
+			salas[i].Draw(*_window);
 			
 		}
-		centroMensajes.Draw(_window);
+		centroMensajes.Draw(*_window);
 
 		/*sf::Vector2f position;
 		position.x = 0; position.y = 0;
@@ -105,8 +109,16 @@ void Graphics::DrawDungeon()
 		shape.setPosition(sf::Vector2f(position.x*SIZE, position.y*SIZE));
 		_window.draw(shape);*/
 
-		_window.display();
+		_window->display();
 	}
+}
+
+void Graphics::ClearDungeon()
+{
+	delete(_window);
+	delete(shape);
+	_window = nullptr;
+	shape = nullptr;
 }
 
 
