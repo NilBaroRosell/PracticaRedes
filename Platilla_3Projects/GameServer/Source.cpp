@@ -12,35 +12,7 @@ void AddNewPlayer(std::list<PlayerInfo> &_players, std::string _username) {
 	
 }
 
-void initializeCards()
-{
-	//Characters
-	full_Deck.push_back({ "Prado", CardType::CHARACTER });
-	full_Deck.push_back({ "Rubio", CardType::CHARACTER });
-	full_Deck.push_back({ "Orquidea", CardType::CHARACTER });
-	full_Deck.push_back({ "Celeste", CardType::CHARACTER });
-	full_Deck.push_back({ "Mora", CardType::CHARACTER });
-	full_Deck.push_back({ "Amapola", CardType::CHARACTER });
 
-	//Weapons
-	full_Deck.push_back({ "Candelabro", CardType::WEAPON });
-	full_Deck.push_back({ "Punal", CardType::WEAPON });
-	full_Deck.push_back({ "Tuberia de plomo", CardType::WEAPON });
-	full_Deck.push_back({ "Pistola", CardType::WEAPON });
-	full_Deck.push_back({ "Cuerda", CardType::WEAPON });
-	full_Deck.push_back({ "Herramienta", CardType::WEAPON });
-
-	//Rooms
-	full_Deck.push_back({ "Sala de baile", CardType::ROOM });
-	full_Deck.push_back({ "Sala de billar", CardType::ROOM });
-	full_Deck.push_back({ "Invernadero", CardType::ROOM });
-	full_Deck.push_back({"Comedor", CardType::ROOM });
-	full_Deck.push_back({ "Vestibulo", CardType::ROOM });
-	full_Deck.push_back({ "Cocina", CardType::ROOM });
-	full_Deck.push_back({ "Biblioteca", CardType::ROOM });
-	full_Deck.push_back({ "Salon", CardType::ROOM });
-	full_Deck.push_back({ "Estudio", CardType::ROOM });
-}
 
 /*void initializeBoard()
 {
@@ -121,6 +93,7 @@ int main()
 	srand(time(NULL));
 	// Controla que el servidor este abierto
 	bool serverRunning = true;
+	bool matchStarted = false;
 
 	//Inicializar todas las cartas
 	initializeCards();
@@ -188,12 +161,33 @@ int main()
 							int aux;
 							Comands comand;
 							std::string data;
-							packet >> aux >> data;
+							packet >> aux;
 							comand = (Comands)aux;
 							switch (comand)
 							{
 								case Comands::READY:
+									packet >> data;
 									usernames.push_back(data);
+									break;
+								case Comands::DEDUCTION:
+									bool wantDeduction;
+									packet >> wantDeduction;
+									if (wantDeduction)
+									{
+										std::string _character, _gun, _room;
+										packet >> _character >> _gun >> _room;
+										packet.clear();
+										packet << static_cast<int32_t>(Comands::DENY) << _character << _gun << _room;
+										std::list<sf::TcpSocket*>::iterator leftPlayerIt = it;
+										leftPlayerIt++;
+										if (leftPlayerIt == clients.end()) leftPlayerIt = clients.begin();
+										sf::TcpSocket& leftPlayer = **leftPlayerIt;
+										leftPlayer.send(packet);
+									}
+									else
+									{
+										std::cout << "No deduction" << std::endl;
+									}
 									break;
 								default:
 									break;
@@ -203,6 +197,7 @@ int main()
 						{
 							selector.remove(client);
 							std::cout << "Elimino el socket que se ha desconectado\n";
+							matchStarted = false;
 						}
 						else
 						{
@@ -212,33 +207,35 @@ int main()
 				}
 
 				packet.clear();
-
-				if (numPlayers >= 3) //mirar si hay mas de 3 clientes
-				{ 
-					std::cout << numPlayers << std::endl;
-					assignCards(shuffledCards, playerCards, numPlayers - 1);
-					int i = 0;
-					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+				if (!matchStarted) {
+					if (numPlayers >= 1) //mirar si hay mas de 3 clientes
 					{
-						std::cout << playerCards[i].size() << std::endl;
-						packet << static_cast<int32_t>(Comands::START) << usernames.back() << static_cast<int32_t>(playerCards[i].size());
-						for (auto it = playerCards[i].begin(); it != playerCards[i].end(); it++)
+						matchStarted = true;
+						std::cout << numPlayers << std::endl;
+						assignCards(shuffledCards, playerCards, numPlayers - 1);
+						int i = 0;
+						for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 						{
-							packet << it->name << static_cast<int32_t>(it->type);
+							std::cout << playerCards[i].size() << std::endl;
+							packet << static_cast<int32_t>(Comands::ROOM_FOUND) << usernames.back() << static_cast<int32_t>(playerCards[i].size());
+							for (auto it = playerCards[i].begin(); it != playerCards[i].end(); it++)
+							{
+								packet << it->name << static_cast<int32_t>(it->type);
+							}
+							sf::TcpSocket& client = **it;
+							client.send(packet);
+							packet.clear();
+							i++;
 						}
-						sf::TcpSocket& client = **it;
-						client.send(packet);
-						packet.clear();
-						i++;
 					}
-				}
-				else
-				{
-					packet << static_cast<int32_t>(Comands::WAIT) << usernames.back();
-					for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+					else
 					{
-						sf::TcpSocket& client = **it;
-						client.send(packet);
+						packet << static_cast<int32_t>(Comands::WAIT) << usernames.back();
+						for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+						{
+							sf::TcpSocket& client = **it;
+							client.send(packet);
+						}
 					}
 				}
 			}

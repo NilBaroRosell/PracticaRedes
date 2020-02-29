@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "10.40.0.133"
+#define SERVER_IP "192.168.1.134"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -48,6 +48,7 @@ int main()
 		std::string name;
 		CardType type;
 
+		initializeCards();
 		g.InitDungeon();
 
 		while (connected)
@@ -85,76 +86,100 @@ int main()
 					case Comands::ROOM_FOUND:
 						packet >> data;
 						std::cout << "Room " << data << " has been found" << std::endl;
-						std::cout << "Do you want to make a deduction? (Y/N)" << std::endl;
 						packet.clear();
-						std::string answer = "jaja";
-						while (answer != "y" || answer != "Y" || answer != "N" || answer != "n")
+						do
 						{
-							answer.clear();
-							std::cin >> answer;
-						}
-						bool wantDeduction;
-						if (answer == "y" || answer == "Y") wantDeduction = true;
-						else wantDeduction = false;
-
-						std::vector<std::string> character, weapon, room;
-
-						for (auto _card : full_Deck)
+							std::cout << "Do you want to make a deduction? (Y/N)" << std::endl;
+							data.clear();
+							std::cin >> data;
+							system("CLS");
+						} while (data != "y" && data != "Y" && data != "N" && data != "n");
+						if (data == "y" || data == "Y")
 						{
-							switch (_card.type)
+							packet << static_cast<int32_t>(Comands::DEDUCTION) << true;
+
+							std::vector<std::string> character, weapon, room;
+
+							for (auto _card : full_Deck)
 							{
-							case CardType::CHARACTER:
-								character.push_back(_card.name);
-								break;
-							case CardType::WEAPON:
-								weapon.push_back(_card.name);
-								break;
-							case CardType::ROOM:
-								room.push_back(_card.name);
-								break;
-							default:
-								break;
+								switch (_card.type)
+								{
+								case CardType::CHARACTER:
+									character.push_back(_card.name);
+									break;
+								case CardType::WEAPON:
+									weapon.push_back(_card.name);
+									break;
+								case CardType::ROOM:
+									room.push_back(_card.name);
+									break;
+								default:
+									break;
+								}
+							}
+
+							std::cout << "SELECT A CHARACTER" << std::endl;
+							for (int i = 0; i < character.size(); i++)
+								std::cout << i + 1 << "-" << character[i] << std::endl;
+
+							int cardAnswer = 0;
+
+							while (cardAnswer < 1 || cardAnswer > character.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << character[cardAnswer - 1];
+
+							cardAnswer = 0;
+							system("CLS");
+							std::cout << "SELECT A WEAPON" << std::endl;
+							for (int i = 0; i < weapon.size(); i++)
+								std::cout << i + 1 << "-" << weapon[i] << std::endl;
+
+							while (cardAnswer < 1 || cardAnswer > weapon.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << weapon[cardAnswer - 1];
+
+							cardAnswer = 0;
+							system("CLS");
+							std::cout << "SELECT A ROOM" << std::endl;
+							for (int i = 0; i < room.size(); i++)
+								std::cout << i + 1 << "-" << room[i] << std::endl;
+
+							while (cardAnswer < 1 || cardAnswer > room.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << room[cardAnswer - 1];
+
+							
+							system("CLS");
+						}
+						else packet << static_cast<int32_t>(Comands::DEDUCTION) << false;
+						socket.send(packet);
+						break;
+					case Comands::DENY:
+						system("CLS");
+						std::cout << "Asks for: " << std::endl;
+						std::string cardsToDeny[3];
+						for (int i = 0; i < 3; i++)
+						{
+							packet >> cardsToDeny[i];
+							std::cout << "-" << cardsToDeny[i] << std::endl;
+						}
+						std::vector<card> cardsPlayerCanDeny;
+						std::cout << "And you have: " << std::endl;
+						for (auto card : myCards)
+						{
+							for (auto denyCard : cardsToDeny) {
+								if (card.name == denyCard) {
+									cardsPlayerCanDeny.push_back(card);
+									std::cout << "-" << denyCard << std::endl;
+								}
 							}
 						}
-
-						std::cout << "SELECT A CHARACTER" << std::endl;
-						for (int i = 0; character.size(); i++)
-							std::cout << i + 1 << "-" << character[i] << std::endl;
-
-						int cardAnswer = 0;
-
-						while (cardAnswer < 1 || cardAnswer > character.size()) {
-							std::cin >> cardAnswer;
-						}
-
-						packet << static_cast<int32_t>(Comands::DEDUCTION) << wantDeduction << character[cardAnswer-1];
-
-						cardAnswer = 0;
-						system("CLS");
-						std::cout << "SELECT A WEAPON" << std::endl;
-						for (int i = 0; weapon.size(); i++)
-							std::cout << i + 1 << "-" << weapon[i] << std::endl;
-
-						while (cardAnswer < 1 || cardAnswer > weapon.size()) {
-							std::cin >> cardAnswer;
-						}
-
-						packet << weapon[cardAnswer - 1];
-
-						cardAnswer = 0;
-						system("CLS");
-						std::cout << "SELECT A ROOM" << std::endl;
-						for (int i = 0; room.size(); i++)
-							std::cout << i + 1 << "-" << room[i] << std::endl;
-
-						while (cardAnswer < 1 || cardAnswer > room.size()) {
-							std::cin >> cardAnswer;
-						}
-
-						packet << room[cardAnswer - 1];
-
-						socket.send(packet);
-						system("CLS");
 						break;
 				}
 				//std::cout << username << " has joined the game" << std::endl;
