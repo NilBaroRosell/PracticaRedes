@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "10.40.0.133"
+#define SERVER_IP "192.168.1.45"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -38,10 +38,10 @@ int main()
 	else
 	{
 		std::cout << "Se ha establecido conexion\n";
+		system("CLS");
 		packet << static_cast<int32_t>(Comands::READY) << nickname;
 		socket.send(packet);
 		connected = true;
-		system("CLS");
 		int aux;
 		Comands comand;
 		std::string data;
@@ -60,6 +60,25 @@ int main()
 				comand = (Comands)aux;
 				switch (comand)
 				{
+					case Comands::CHOOSE_NUM_PLAYERS:
+						int numPlayers;
+						std::cout << "Choose how many player will play this game (from 3 to 6 players)" << std::endl;
+						std::cin >> numPlayers;
+						system("CLS");
+						if (numPlayers < 3)
+						{
+							std::cout << "3 players will play this match" << std::endl;
+							numPlayers = 3;
+						}
+						else if(numPlayers > 6)
+						{
+							std::cout << "6 players will play this match" << std::endl;
+							numPlayers = 6;
+						}
+						else std::cout << numPlayers << " players will play this match" << std::endl;
+						packet.clear();
+						packet << static_cast<int32_t>(Comands::NUM_PLAYERS) << numPlayers;
+						break;
 					case Comands::WAIT:
 						packet >> data;
 						std::cout << data << " has joined" << std::endl;

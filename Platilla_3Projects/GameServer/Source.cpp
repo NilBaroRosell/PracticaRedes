@@ -226,7 +226,7 @@ int main()
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
-	sf::Socket::Status status = listener.listen(55556);	
+	sf::Socket::Status status = listener.listen(55556);
 	if (status != sf::Socket::Done)
 	{
 		std::cout << "Error al abrir listener\n";
@@ -237,12 +237,13 @@ int main()
 
 	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
 
-	std::list<sf::TcpSocket*> clients;	
+	std::list<sf::TcpSocket*> clients;
 	std::vector<PlayerInfo> players;
 	std::vector<std::string> usernames;
 	sf::SocketSelector selector;
 	sf::Packet packet;
 	selector.add(listener);
+	int matchPlayers = 3;
 
 	while (serverRunning)
 	{
@@ -287,32 +288,44 @@ int main()
 							comand = (Comands)aux;
 							switch (comand)
 							{
-								case Comands::READY:
-									packet >> data;
-									usernames.push_back(data);
-									break;
-								case Comands::DEDUCTION:
-									bool wantDeduction;
-									packet >> wantDeduction;
-									if (wantDeduction)
-									{
-										std::string _character, _gun, _room;
-										packet >> _character >> _gun >> _room;
-										packet.clear();
-										packet << static_cast<int32_t>(Comands::DENY) << _character << _gun << _room;
-										std::list<sf::TcpSocket*>::iterator leftPlayerIt = it;
-										leftPlayerIt++;
-										if (leftPlayerIt == clients.end()) leftPlayerIt = clients.begin();
-										sf::TcpSocket& leftPlayer = **leftPlayerIt;
-										leftPlayer.send(packet);
-									}
-									else
-									{
-										std::cout << "No deduction" << std::endl;
-									}
-									break;
-								default:
-									break;
+							case Comands::READY:
+								packet >> data;
+								usernames.push_back(data);
+								if (numPlayers == 1)
+								{
+									packet.clear();
+									packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
+									sf::TcpSocket& client = *clients.front();
+									client.send(packet);
+								}
+								break;
+							case Comands::NUM_PLAYERS:
+								packet >> matchPlayers;
+								if (matchPlayers > 6) matchPlayers = 6;
+								else if (matchPlayers < 3) matchPlayers = 3;
+								break;
+							case Comands::DEDUCTION:
+								bool wantDeduction;
+								packet >> wantDeduction;
+								if (wantDeduction)
+								{
+									std::string _character, _gun, _room;
+									packet >> _character >> _gun >> _room;
+									packet.clear();
+									packet << static_cast<int32_t>(Comands::DENY) << _character << _gun << _room;
+									std::list<sf::TcpSocket*>::iterator leftPlayerIt = it;
+									leftPlayerIt++;
+									if (leftPlayerIt == clients.end()) leftPlayerIt = clients.begin();
+									sf::TcpSocket& leftPlayer = **leftPlayerIt;
+									leftPlayer.send(packet);
+								}
+								else
+								{
+									std::cout << "No deduction" << std::endl;
+								}
+								break;
+							default:
+								break;
 							}
 						}
 						else if (status == sf::Socket::Disconnected)
@@ -330,7 +343,7 @@ int main()
 
 				packet.clear();
 				if (!matchStarted) {
-					if (numPlayers >= 1) //mirar si hay mas de 3 clientes
+					if (numPlayers >= matchPlayers) //mirar si hay mas de 3 clientes
 					{
 						matchStarted = true;
 						std::cout << numPlayers << std::endl;
