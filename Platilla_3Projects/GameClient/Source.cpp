@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.134"
+#define SERVER_IP "10.40.0.133"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -76,6 +76,8 @@ int main()
 							type = (CardType)aux;
 							myCards.push_back({ name, type });
 						}
+
+						packet >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.color.r >> playerInfo.color.g >> playerInfo.color.b >> playerInfo.color.a;
 
 						for (auto card : myCards)
 						{

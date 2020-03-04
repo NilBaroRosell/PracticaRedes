@@ -8,6 +8,15 @@ struct card {
 	CardType type;
 };
 
+struct Vector2
+{
+	int x;
+	int y;
+
+	Vector2() { x = -1; y = -1; }
+	Vector2(int _x, int _y) { x = _x; y = _y; }
+};
+
 std::vector<card> full_Deck;
 
 const int ROWS = 40;

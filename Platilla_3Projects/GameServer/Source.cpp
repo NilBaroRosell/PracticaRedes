@@ -12,14 +12,129 @@ void AddNewPlayer(std::list<PlayerInfo> &_players, std::string _username) {
 	
 }
 
-
-
-/*void initializeBoard()
+void InitializeBoard(std::string _board[ROWS][COLUMNS])
 {
+	//Invernadero
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			_board[i][j] = "Invernadero";
+		}
+	}
 
-}*/
+	//Sala de billar
+	for (int i = 12; i < 18; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			_board[i][j] = "Sala de billar";
+		}
+	}
 
-void shuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
+	//Biblioteca
+	for (int i = 22; i < 28; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			_board[i][j] = "Biblioteca";
+		}
+	}
+
+	//Estudio
+	for (int i = 32; i < 40; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			_board[i][j] = "Estudio";
+		}
+	}
+
+	//Sala de baile
+	for (int i = 0; i < 8; i++)
+	{
+		for (int j = 12; j < 18; j++)
+		{
+			_board[i][j] = "Sala de baile";
+		}
+	}
+
+	//vestibulo
+	for (int i = 30; i < 40; i++)
+	{
+		for (int j = 12; j < 18; j++)
+		{
+			_board[i][j] = "vestibulo";
+		}
+	}
+
+	//cocina
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 20; j < 30; j++)
+		{
+			_board[i][j] = "cocina";
+		}
+	}
+
+	//comedor
+	for (int i = 13; i < 26; i++)
+	{
+		for (int j = 20; j < 30; j++)
+		{
+			_board[i][j] = "comedor";
+		}
+	}
+
+	//salon
+	for (int i = 30; i < 40; i++)
+	{
+		for (int j = 22; j < 30; j++)
+		{
+			_board[i][j] = "salon";
+		}
+	}
+
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			if(_board[i][j].empty()) _board[i][j] = "EMPTY";
+		}
+	}
+}
+
+Vector2 GetRandomPosition(std::string _board[ROWS][COLUMNS])
+{
+	int rx, ry;
+	rx = rand() % ROWS - 1;
+	ry = rand() % COLUMNS - 1;
+	if (_board[rx][ry] != "EMPTY") GetRandomPosition(_board);
+	Vector2 pos{ rx, ry };
+	return pos;
+}
+
+void SetRandomInitialPositions(std::string _board[ROWS][COLUMNS], std::vector<std::string> _usernames, Vector2 _playersPositions[6], int _numPlayers)
+{
+	for (int i = 0; i < _numPlayers; i++)
+	{
+		Vector2 newPosition = GetRandomPosition(_board);
+		_board[newPosition.x][newPosition.y] = _usernames[i];
+		_playersPositions[i].x = newPosition.x;
+		_playersPositions[i].y = newPosition.y;
+	}
+
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			std::cout << _board[i][j] << " ";
+		}
+		std::cout << std::endl;
+	}
+}
+
+void ShuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
 {
 	while(!_deck.empty())
 	{
@@ -39,7 +154,7 @@ void shuffleCards(std::vector<card> &_shuffledCards, std::vector<card> _deck)
 	}
 }
 
-void takeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffledCards)
+void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffledCards)
 {
 	bool hasCharacter = false;
 	bool hasWeapon = false;
@@ -73,7 +188,7 @@ void takeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 	}
 }
 
-void assignCards(std::vector<card> shuffledCards, std::vector<card> _playersCards[], int _numPlayers)
+void AssignCards(std::vector<card> shuffledCards, std::vector<card> _playersCards[], int _numPlayers)
 {
 	int i = 0;
 	while (!shuffledCards.empty())
@@ -95,14 +210,19 @@ int main()
 	bool serverRunning = true;
 	bool matchStarted = false;
 
+	std::string board[ROWS][COLUMNS];
+
+	InitializeBoard(board);
+
 	//Inicializar todas las cartas
 	initializeCards();
 	//initializeBoard();
 	std::vector<card> shuffledCards;
 	std::vector<card> finalCards;
-	shuffleCards(shuffledCards, full_Deck);
-	takeFinalCards(finalCards, shuffledCards);
+	ShuffleCards(shuffledCards, full_Deck);
+	TakeFinalCards(finalCards, shuffledCards);
 	std::vector<card> playerCards[6];
+	Vector2 playersPositions[6];
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
@@ -115,9 +235,11 @@ int main()
 	// Creamos lista de clientes
 	int numPlayers = 0;
 
+	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
+
 	std::list<sf::TcpSocket*> clients;	
-	std::list<PlayerInfo> players;	
-	std::list<std::string> usernames;
+	std::vector<PlayerInfo> players;
+	std::vector<std::string> usernames;
 	sf::SocketSelector selector;
 	sf::Packet packet;
 	selector.add(listener);
@@ -212,12 +334,15 @@ int main()
 					{
 						matchStarted = true;
 						std::cout << numPlayers << std::endl;
-						assignCards(shuffledCards, playerCards, numPlayers - 1);
+						AssignCards(shuffledCards, playerCards, numPlayers - 1);
+						SetRandomInitialPositions(board, usernames, playersPositions, numPlayers);
 						int i = 0;
 						for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 						{
 							std::cout << playerCards[i].size() << std::endl;
-							packet << static_cast<int32_t>(Comands::ROOM_FOUND) << usernames.back() << static_cast<int32_t>(playerCards[i].size());
+							int position[2] = { playersPositions[i].x, playersPositions[i].y };
+							int color[4]{ playersColors[i].r, playersColors[i].g, playersColors[i].b, playersColors[i].a };
+							packet << static_cast<int32_t>(Comands::START) << usernames.back() << static_cast<int32_t>(playerCards[i].size()) << playersPositions[i].x << playersPositions[i].y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
 							for (auto it = playerCards[i].begin(); it != playerCards[i].end(); it++)
 							{
 								packet << it->name << static_cast<int32_t>(it->type);
