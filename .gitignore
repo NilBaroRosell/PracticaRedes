@@ -1,0 +1,16 @@
+
+Platilla_3Projects/x64/
+
+Platilla_3Projects/GameServer/x64/
+
+Platilla_3Projects/GameLib/x64/
+
+Platilla_3Projects/GameClient/x64/
+
+Platilla_3Projects/.vs/
+
+Platilla_3Projects/GameServer/GameServer.vcxproj
+
+Platilla_3Projects/GameLib/GameLib.vcxproj
+
+Platilla_3Projects/GameClient/GameClient.vcxproj

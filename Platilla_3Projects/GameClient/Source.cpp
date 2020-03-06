@@ -9,26 +9,55 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.45"
+#define SERVER_IP "10.40.0.127"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
+void initializeCards(std::vector<card> &_fullDeck)
+{
+	//Characters
+	_fullDeck.push_back({ "Prado", CardType::CHARACTER });
+	_fullDeck.push_back({ "Rubio", CardType::CHARACTER });
+	_fullDeck.push_back({ "Orquidea", CardType::CHARACTER });
+	_fullDeck.push_back({ "Celeste", CardType::CHARACTER });
+	_fullDeck.push_back({ "Mora", CardType::CHARACTER });
+	_fullDeck.push_back({ "Amapola", CardType::CHARACTER });
+
+	//Weapons
+	_fullDeck.push_back({ "Candelabro", CardType::WEAPON });
+	_fullDeck.push_back({ "Punal", CardType::WEAPON });
+	_fullDeck.push_back({ "Tuberia de plomo", CardType::WEAPON });
+	_fullDeck.push_back({ "Pistola", CardType::WEAPON });
+	_fullDeck.push_back({ "Cuerda", CardType::WEAPON });
+	_fullDeck.push_back({ "Herramienta", CardType::WEAPON });
+
+	//Rooms
+	_fullDeck.push_back({ "Sala de baile", CardType::ROOM });
+	_fullDeck.push_back({ "Sala de billar", CardType::ROOM });
+	_fullDeck.push_back({ "Invernadero", CardType::ROOM });
+	_fullDeck.push_back({ "Comedor", CardType::ROOM });
+	_fullDeck.push_back({ "Vestibulo", CardType::ROOM });
+	_fullDeck.push_back({ "Cocina", CardType::ROOM });
+	_fullDeck.push_back({ "Biblioteca", CardType::ROOM });
+	_fullDeck.push_back({ "Salon", CardType::ROOM });
+	_fullDeck.push_back({ "Estudio", CardType::ROOM });
+}
+
 
 int main()
 {
 	PlayerInfo playerInfo;
 	Graphics g;
 	
-	std::string nickname;
 	bool connected = false;
 
 	std::cout << "Bienvenido a CLUEDO, escoge tu nombre:\n";
-	std::cin >> nickname;
+	std::cin >> playerInfo.nickname;
 
 	sf::TcpSocket socket;
 	sf::Packet packet;
 	sf::Socket::Status status = socket.connect(SERVER_IP, SERVER_PORT, sf::milliseconds(15.f));
-	std::vector<card> myCards;
+	std::vector<card> full_Deck;
 
 	if (status != sf::Socket::Done)
 	{
@@ -39,7 +68,7 @@ int main()
 	{
 		std::cout << "Se ha establecido conexion\n";
 		system("CLS");
-		packet << static_cast<int32_t>(Comands::READY) << nickname;
+		packet << static_cast<int32_t>(Comands::READY) << playerInfo.nickname;
 		socket.send(packet);
 		connected = true;
 		int aux;
@@ -48,7 +77,7 @@ int main()
 		std::string name;
 		CardType type;
 
-		initializeCards();
+		initializeCards(full_Deck);
 		g.InitDungeon();
 
 		while (connected)
@@ -61,6 +90,7 @@ int main()
 				switch (comand)
 				{
 					case Comands::CHOOSE_NUM_PLAYERS:
+					{
 						int numPlayers;
 						std::cout << "Choose how many player will play this game (from 3 to 6 players)" << std::endl;
 						std::cin >> numPlayers;
@@ -70,7 +100,7 @@ int main()
 							std::cout << "3 players will play this match" << std::endl;
 							numPlayers = 3;
 						}
-						else if(numPlayers > 6)
+						else if (numPlayers > 6)
 						{
 							std::cout << "6 players will play this match" << std::endl;
 							numPlayers = 6;
@@ -79,32 +109,39 @@ int main()
 						packet.clear();
 						packet << static_cast<int32_t>(Comands::NUM_PLAYERS) << numPlayers;
 						break;
+					}
 					case Comands::WAIT:
+					{
 						packet >> data;
 						std::cout << data << " has joined" << std::endl;
 						std::cout << "Waiting for players" << std::endl;
 						break;
+					}
 					case Comands::START:
-						int numCards;
-						packet >> data >> numCards;
-						std::cout << data << " has joined" << std::endl;
-						std::cout << "Start game" << std::endl;
-						for (int i = 0; i < numCards; i++)
-						{
-							packet >> name >> aux;
-							type = (CardType)aux;
-							myCards.push_back({ name, type });
-						}
+					{int numCards;
+					packet >> data >> numCards;
+					std::cout << data << " has joined" << std::endl;
+					std::cout << "Start game" << std::endl;
 
-						packet >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.color.r >> playerInfo.color.g >> playerInfo.color.b >> playerInfo.color.a;
+					packet >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.color.r >> playerInfo.color.g >> playerInfo.color.b >> playerInfo.color.a;
 
-						for (auto card : myCards)
-						{
-							std::cout << card.name << std::endl;
-						}
-						packet.clear();
-						break;
+					std::cout << "At position-> " << playerInfo.position.x << "-" << playerInfo.position.y << std::endl;
+
+					for (int i = 0; i < numCards; i++)
+					{
+						packet >> name >> aux;
+						type = (CardType)aux;
+						playerInfo.playerCards.push_back({ name, type });
+						std::cout << playerInfo.playerCards.back().name << std::endl;
+					}
+
+					packet.clear();
+					packet << static_cast<int32_t>(Comands::GO_TO);
+					socket.send(packet);
+					break;
+					}
 					case Comands::ROOM_FOUND:
+					{
 						packet >> data;
 						std::cout << "Room " << data << " has been found" << std::endl;
 						packet.clear();
@@ -175,24 +212,29 @@ int main()
 
 							packet << room[cardAnswer - 1];
 
-							
+
 							system("CLS");
 						}
 						else packet << static_cast<int32_t>(Comands::DEDUCTION) << false;
 						socket.send(packet);
 						break;
+					}
 					case Comands::DENY:
+					{
 						system("CLS");
-						std::cout << "Asks for: " << std::endl;
+						std::string deductionPlayer;
+						packet >> deductionPlayer;
+						std::cout << deductionPlayer + " asks for: " << std::endl;
 						std::string cardsToDeny[3];
 						for (int i = 0; i < 3; i++)
 						{
 							packet >> cardsToDeny[i];
 							std::cout << "-" << cardsToDeny[i] << std::endl;
 						}
+						packet.clear();
 						std::vector<card> cardsPlayerCanDeny;
 						std::cout << "And you have: " << std::endl;
-						for (auto card : myCards)
+						for (auto card : playerInfo.playerCards)
 						{
 							for (auto denyCard : cardsToDeny) {
 								if (card.name == denyCard) {
@@ -201,7 +243,29 @@ int main()
 								}
 							}
 						}
+						int answer = 0;
+						std::cout << "SELECT A DENY ANSWER" << std::endl;
+						for (int i = 0; i < cardsPlayerCanDeny.size(); i++)
+							std::cout << i + 1 << "-" << cardsPlayerCanDeny[i].name << std::endl;
+						card denyCard;
+						while (answer < 1 || answer > cardsPlayerCanDeny.size()) {
+							std::cin >> answer;
+						}
+						denyCard = cardsPlayerCanDeny[answer - 1];
+						packet << static_cast<int32_t>(Comands::DENY_RESPONSE) << denyCard.name << static_cast<int32_t>(denyCard.type);
+						socket.send(packet);
 						break;
+					}
+					case Comands::SHOW_DENYRESPONE:
+					{
+						card denyCard;
+						int aux;
+						std::string nickname;
+						packet >> nickname >> denyCard.name >> aux;
+						denyCard.type = (CardType)aux;
+						std::cout << "Player " << nickname << " denied card-> " << denyCard.name << std::endl;
+						break;
+					}
 				}
 				//std::cout << username << " has joined the game" << std::endl;
 			}

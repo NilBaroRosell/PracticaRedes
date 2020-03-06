@@ -8,8 +8,34 @@
 
 ///// SERVER /////
 
-void AddNewPlayer(std::list<PlayerInfo> &_players, std::string _username) {
-	
+void initializeCards(std::vector<card> &_fullDeck)
+{
+	//Characters
+	_fullDeck.push_back({ "Prado", CardType::CHARACTER });
+	_fullDeck.push_back({ "Rubio", CardType::CHARACTER });
+	_fullDeck.push_back({ "Orquidea", CardType::CHARACTER });
+	_fullDeck.push_back({ "Celeste", CardType::CHARACTER });
+	_fullDeck.push_back({ "Mora", CardType::CHARACTER });
+	_fullDeck.push_back({ "Amapola", CardType::CHARACTER });
+
+	//Weapons
+	_fullDeck.push_back({ "Candelabro", CardType::WEAPON });
+	_fullDeck.push_back({ "Punal", CardType::WEAPON });
+	_fullDeck.push_back({ "Tuberia de plomo", CardType::WEAPON });
+	_fullDeck.push_back({ "Pistola", CardType::WEAPON });
+	_fullDeck.push_back({ "Cuerda", CardType::WEAPON });
+	_fullDeck.push_back({ "Herramienta", CardType::WEAPON });
+
+	//Rooms
+	_fullDeck.push_back({ "Sala de baile", CardType::ROOM });
+	_fullDeck.push_back({ "Sala de billar", CardType::ROOM });
+	_fullDeck.push_back({ "Invernadero", CardType::ROOM });
+	_fullDeck.push_back({ "Comedor", CardType::ROOM });
+	_fullDeck.push_back({ "Vestibulo", CardType::ROOM });
+	_fullDeck.push_back({ "Cocina", CardType::ROOM });
+	_fullDeck.push_back({ "Biblioteca", CardType::ROOM });
+	_fullDeck.push_back({ "Salon", CardType::ROOM });
+	_fullDeck.push_back({ "Estudio", CardType::ROOM });
 }
 
 void InitializeBoard(std::string _board[ROWS][COLUMNS])
@@ -114,14 +140,14 @@ Vector2 GetRandomPosition(std::string _board[ROWS][COLUMNS])
 	return pos;
 }
 
-void SetRandomInitialPositions(std::string _board[ROWS][COLUMNS], std::vector<std::string> _usernames, Vector2 _playersPositions[6], int _numPlayers)
+void SetRandomInitialPositions(std::string _board[ROWS][COLUMNS], std::vector<PlayerInfo> &_players, int _numPlayers)
 {
 	for (int i = 0; i < _numPlayers; i++)
 	{
 		Vector2 newPosition = GetRandomPosition(_board);
-		_board[newPosition.x][newPosition.y] = _usernames[i];
-		_playersPositions[i].x = newPosition.x;
-		_playersPositions[i].y = newPosition.y;
+		_board[newPosition.x][newPosition.y] = _players[i].nickname;
+		_players[i].position.x = newPosition.x;
+		_players[i].position.y = newPosition.y;
 	}
 
 	for (int i = 0; i < ROWS; i++)
@@ -188,12 +214,12 @@ void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 	}
 }
 
-void AssignCards(std::vector<card> shuffledCards, std::vector<card> _playersCards[], int _numPlayers)
+void AssignCards(std::vector<card> shuffledCards, std::vector<PlayerInfo> &_players, int _numPlayers)
 {
 	int i = 0;
 	while (!shuffledCards.empty())
 	{
-		_playersCards[i].push_back(shuffledCards.front());
+		_players[i].playerCards.push_back(shuffledCards.front());
 		shuffledCards.erase(shuffledCards.begin());
 		i++;
 		if (i > _numPlayers)
@@ -202,6 +228,8 @@ void AssignCards(std::vector<card> shuffledCards, std::vector<card> _playersCard
 		}
 	}
 }
+
+
 
 int main()
 {
@@ -214,16 +242,15 @@ int main()
 
 	InitializeBoard(board);
 
-	//Inicializar todas las cartas
-	initializeCards();
+	
 	//initializeBoard();
 	std::vector<card> shuffledCards;
 	std::vector<card> finalCards;
+	std::vector<card> full_Deck;
+	//Inicializar todas las cartas
+	initializeCards(full_Deck);
 	ShuffleCards(shuffledCards, full_Deck);
 	TakeFinalCards(finalCards, shuffledCards);
-	std::vector<card> playerCards[6];
-	Vector2 playersPositions[6];
-
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
 	sf::Socket::Status status = listener.listen(55556);
@@ -235,15 +262,14 @@ int main()
 	// Creamos lista de clientes
 	int numPlayers = 0;
 
+	
 	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
-
 	std::list<sf::TcpSocket*> clients;
 	std::vector<PlayerInfo> players;
-	std::vector<std::string> usernames;
 	sf::SocketSelector selector;
 	sf::Packet packet;
 	selector.add(listener);
-	int matchPlayers = 3;
+	int matchPlayers = 0;
 
 	while (serverRunning)
 	{
@@ -271,8 +297,10 @@ int main()
 			else
 			{
 				// Si el listener no esta "ready", miramos el resto de sockets
+				
 				for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 				{
+					int i = 0;
 					sf::TcpSocket& client = **it;
 					if (selector.isReady(client))
 					{
@@ -289,22 +317,35 @@ int main()
 							switch (comand)
 							{
 							case Comands::READY:
-								packet >> data;
-								usernames.push_back(data);
-								if (numPlayers == 1)
-								{
-									packet.clear();
-									packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
-									sf::TcpSocket& client = *clients.front();
-									client.send(packet);
-								}
-								break;
+							{packet >> data;
+							PlayerInfo newPlayer;
+							newPlayer.nickname = data;
+							players.push_back(newPlayer);
+							if (numPlayers == 1)
+							{
+								packet.clear();
+								packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
+								sf::TcpSocket& client = *clients.front();
+								client.send(packet);
+								matchPlayers = 1;
+							}
+							break;
+							}
 							case Comands::NUM_PLAYERS:
+							{
 								packet >> matchPlayers;
 								if (matchPlayers > 6) matchPlayers = 6;
 								else if (matchPlayers < 3) matchPlayers = 3;
 								break;
+							}
+							case Comands::GO_TO:
+							{
+								packet.clear();
+								packet << static_cast<int32_t>(Comands::ROOM_FOUND);
+								client.send(packet);
+							}
 							case Comands::DEDUCTION:
+							{
 								bool wantDeduction;
 								packet >> wantDeduction;
 								if (wantDeduction)
@@ -312,7 +353,7 @@ int main()
 									std::string _character, _gun, _room;
 									packet >> _character >> _gun >> _room;
 									packet.clear();
-									packet << static_cast<int32_t>(Comands::DENY) << _character << _gun << _room;
+									packet << static_cast<int32_t>(Comands::DENY) << players[i].nickname << _character << _gun << _room;
 									std::list<sf::TcpSocket*>::iterator leftPlayerIt = it;
 									leftPlayerIt++;
 									if (leftPlayerIt == clients.end()) leftPlayerIt = clients.begin();
@@ -324,6 +365,22 @@ int main()
 									std::cout << "No deduction" << std::endl;
 								}
 								break;
+							}
+							case Comands::DENY_RESPONSE:
+							{
+								card denyCard;
+								int aux;
+								packet >> denyCard.name >> aux;
+								denyCard.type = (CardType)aux;
+								packet.clear();
+								packet << static_cast<int32_t>(Comands::SHOW_DENYRESPONE) << players[i].nickname <<denyCard.name << static_cast<int32_t>(denyCard.type);
+								for (std::list<sf::TcpSocket*>::iterator it_aux = clients.begin(); it_aux != clients.end(); ++it_aux)
+								{
+									sf::TcpSocket& aux_client = **it_aux;
+									aux_client.send(packet);
+								}
+								break;
+							}
 							default:
 								break;
 							}
@@ -343,20 +400,21 @@ int main()
 
 				packet.clear();
 				if (!matchStarted) {
-					if (numPlayers >= matchPlayers) //mirar si hay mas de 3 clientes
+					if (numPlayers == matchPlayers) //mirar si hay mas de 3 clientes
 					{
 						matchStarted = true;
 						std::cout << numPlayers << std::endl;
-						AssignCards(shuffledCards, playerCards, numPlayers - 1);
-						SetRandomInitialPositions(board, usernames, playersPositions, numPlayers);
+						AssignCards(shuffledCards, players, numPlayers - 1);
+						SetRandomInitialPositions(board, players, numPlayers);
 						int i = 0;
 						for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 						{
-							std::cout << playerCards[i].size() << std::endl;
-							int position[2] = { playersPositions[i].x, playersPositions[i].y };
+							std::cout << players[i].playerCards.size() << std::endl;
+							int position[2] = { players[i].position.x, players[i].position.y };
 							int color[4]{ playersColors[i].r, playersColors[i].g, playersColors[i].b, playersColors[i].a };
-							packet << static_cast<int32_t>(Comands::START) << usernames.back() << static_cast<int32_t>(playerCards[i].size()) << playersPositions[i].x << playersPositions[i].y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
-							for (auto it = playerCards[i].begin(); it != playerCards[i].end(); it++)
+							players[i].color = playersColors[i];
+							packet << static_cast<int32_t>(Comands::START) << players.back().nickname << static_cast<int32_t>(players[i].playerCards.size()) << players[i].position.x << players[i].position.y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
+							for (auto it = players[i].playerCards.begin(); it != players[i].playerCards.end(); it++)
 							{
 								packet << it->name << static_cast<int32_t>(it->type);
 							}
@@ -368,7 +426,7 @@ int main()
 					}
 					else
 					{
-						packet << static_cast<int32_t>(Comands::WAIT) << usernames.back();
+						packet << static_cast<int32_t>(Comands::WAIT) << players.back().nickname;
 						for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 						{
 							sf::TcpSocket& client = **it;
