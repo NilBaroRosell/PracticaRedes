@@ -68,7 +68,7 @@ private:
 public:
 	Graphics();
 	void InitDungeon();
-	void DrawDungeon();
+	void DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf::Color> _colors);
 	void ClearDungeon();
 	~Graphics();
 };

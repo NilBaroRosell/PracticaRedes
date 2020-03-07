@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "10.40.0.127"
+#define SERVER_IP "192.168.1.45"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -46,18 +46,24 @@ void initializeCards(std::vector<card> &_fullDeck)
 
 int main()
 {
-	PlayerInfo playerInfo;
+	std::vector<PlayerInfo> playersInfo;
+	std::vector<sf::Vector2f> playersPositions;
+	std::vector<sf::Color> playersColors;
+	/*
+	PlayerInfo playerInfo;*/
+	playersInfo.push_back({});
 	Graphics g;
 	
 	bool connected = false;
 
 	std::cout << "Bienvenido a CLUEDO, escoge tu nombre:\n";
-	std::cin >> playerInfo.nickname;
+	std::cin >> playersInfo[0].nickname;
 
 	sf::TcpSocket socket;
 	sf::Packet packet;
 	sf::Socket::Status status = socket.connect(SERVER_IP, SERVER_PORT, sf::milliseconds(15.f));
 	std::vector<card> full_Deck;
+	
 
 	if (status != sf::Socket::Done)
 	{
@@ -68,7 +74,7 @@ int main()
 	{
 		std::cout << "Se ha establecido conexion\n";
 		system("CLS");
-		packet << static_cast<int32_t>(Comands::READY) << playerInfo.nickname;
+		packet << static_cast<int32_t>(Comands::READY) << playersInfo[0].nickname;
 		socket.send(packet);
 		connected = true;
 		int aux;
@@ -118,27 +124,28 @@ int main()
 						break;
 					}
 					case Comands::START:
-					{int numCards;
-					packet >> data >> numCards;
-					std::cout << data << " has joined" << std::endl;
-					std::cout << "Start game" << std::endl;
-
-					packet >> playerInfo.position.x >> playerInfo.position.y >> playerInfo.color.r >> playerInfo.color.g >> playerInfo.color.b >> playerInfo.color.a;
-
-					std::cout << "At position-> " << playerInfo.position.x << "-" << playerInfo.position.y << std::endl;
-
-					for (int i = 0; i < numCards; i++)
 					{
-						packet >> name >> aux;
-						type = (CardType)aux;
-						playerInfo.playerCards.push_back({ name, type });
-						std::cout << playerInfo.playerCards.back().name << std::endl;
-					}
+						int numCards;
+						packet >> data >> numCards;
+						std::cout << data << " has joined" << std::endl;
+						std::cout << "Start game" << std::endl;
 
-					packet.clear();
-					packet << static_cast<int32_t>(Comands::GO_TO);
-					socket.send(packet);
-					break;
+						packet >> playersInfo[0].position.x >> playersInfo[0].position.y >> playersInfo[0].color.r >> playersInfo[0].color.g >> playersInfo[0].color.b >> playersInfo[0].color.a;
+
+						std::cout << "At position-> " << playersInfo[0].position.x << "-" << playersInfo[0].position.y << std::endl;
+
+						for (int i = 0; i < numCards; i++)
+						{
+							packet >> name >> aux;
+							type = (CardType)aux;
+							playersInfo[0].playerCards.push_back({ name, type });
+							std::cout << playersInfo[0].playerCards.back().name << std::endl;
+						}
+
+						packet.clear();
+						packet << static_cast<int32_t>(Comands::READY_START);
+						socket.send(packet);
+						break;
 					}
 					case Comands::ROOM_FOUND:
 					{
@@ -234,7 +241,7 @@ int main()
 						packet.clear();
 						std::vector<card> cardsPlayerCanDeny;
 						std::cout << "And you have: " << std::endl;
-						for (auto card : playerInfo.playerCards)
+						for (auto card : playersInfo[0].playerCards)
 						{
 							for (auto denyCard : cardsToDeny) {
 								if (card.name == denyCard) {
@@ -269,7 +276,19 @@ int main()
 				}
 				//std::cout << username << " has joined the game" << std::endl;
 			}
-			g.DrawDungeon();
+			for (int i = 0; i < playersInfo.size(); i++)
+			{
+				playersPositions.push_back({});
+				playersPositions[i] = playersInfo[i].position;
+				playersColors.push_back({});
+				playersColors[i] = playersInfo[i].color;
+			}
+			g.DrawDungeon(playersPositions, playersColors);
+			for (int i = 0; i < playersInfo.size(); i++)
+			{
+				playersColors.pop_back();
+				playersPositions.pop_back();
+			}
 		}
 		g.ClearDungeon();
 	}

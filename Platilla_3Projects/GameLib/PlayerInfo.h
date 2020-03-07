@@ -6,7 +6,7 @@ class PlayerInfo
 {
 public:
 	std::string nickname;
-	sf::Vector2i position;
+	sf::Vector2f position;
 	sf::Color color;
 	std::vector<card> playerCards;
 

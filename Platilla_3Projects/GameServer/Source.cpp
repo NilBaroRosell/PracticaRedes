@@ -38,14 +38,14 @@ void initializeCards(std::vector<card> &_fullDeck)
 	_fullDeck.push_back({ "Estudio", CardType::ROOM });
 }
 
-void InitializeBoard(std::string _board[ROWS][COLUMNS])
+void InitializeBoard(std::string _board[COLUMNS][ROWS])
 {
 	//Invernadero
 	for (int i = 0; i < 8; i++)
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "Invernadero";
+			_board[i][j] = "I";
 		}
 	}
 
@@ -54,7 +54,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "Sala de billar";
+			_board[i][j] = "D";
 		}
 	}
 
@@ -63,7 +63,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "Biblioteca";
+			_board[i][j] = "B";
 		}
 	}
 
@@ -72,7 +72,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "Estudio";
+			_board[i][j] = "E";
 		}
 	}
 
@@ -81,7 +81,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 12; j < 18; j++)
 		{
-			_board[i][j] = "Sala de baile";
+			_board[i][j] = "S";
 		}
 	}
 
@@ -90,7 +90,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 12; j < 18; j++)
 		{
-			_board[i][j] = "vestibulo";
+			_board[i][j] = "V";
 		}
 	}
 
@@ -99,7 +99,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 20; j < 30; j++)
 		{
-			_board[i][j] = "cocina";
+			_board[i][j] = "C";
 		}
 	}
 
@@ -108,7 +108,7 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 20; j < 30; j++)
 		{
-			_board[i][j] = "comedor";
+			_board[i][j] = "O";
 		}
 	}
 
@@ -117,7 +117,16 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 22; j < 30; j++)
 		{
-			_board[i][j] = "salon";
+			_board[i][j] = "A";
+		}
+	}
+
+	//medio
+	for (int i = 12; i < 26; i++)
+	{
+		for (int j = 12; j < 18; j++)
+		{
+			_board[i][j] = "M";
 		}
 	}
 
@@ -125,22 +134,37 @@ void InitializeBoard(std::string _board[ROWS][COLUMNS])
 	{
 		for (int j = 0; j < COLUMNS; j++)
 		{
-			if(_board[i][j].empty()) _board[i][j] = "EMPTY";
+			if (_board[j][i].empty()) _board[j][i] = "P";
 		}
 	}
 }
 
-Vector2 GetRandomPosition(std::string _board[ROWS][COLUMNS])
+Vector2 GetRandomPosition(std::string _board[COLUMNS][ROWS])
 {
+	system("CLS");
+	for (int i = 0; i < ROWS; i++)
+	{
+		for (int j = 0; j < COLUMNS; j++)
+		{
+			std::cout << _board[j][i] << " ";
+		}
+		std::cout << std::endl;
+	}
 	int rx, ry;
-	rx = rand() % ROWS - 1;
-	ry = rand() % COLUMNS - 1;
-	if (_board[rx][ry] != "EMPTY") GetRandomPosition(_board);
-	Vector2 pos{ rx, ry };
+	rx = rand() % COLUMNS - 1;
+	ry = rand() % ROWS - 1;
+	Vector2 pos;
+	if (_board[rx][ry] != "P") pos = GetRandomPosition(_board);
+	else
+	{
+		pos.x = rx;
+		pos.y = ry;
+	}
+	std::cout << rx << ", " << ry << ": " << _board[rx][ry];
 	return pos;
 }
 
-void SetRandomInitialPositions(std::string _board[ROWS][COLUMNS], std::vector<PlayerInfo> &_players, int _numPlayers)
+void SetRandomInitialPositions(std::string _board[COLUMNS][ROWS], std::vector<PlayerInfo> &_players, int _numPlayers)
 {
 	for (int i = 0; i < _numPlayers; i++)
 	{
@@ -154,7 +178,7 @@ void SetRandomInitialPositions(std::string _board[ROWS][COLUMNS], std::vector<Pl
 	{
 		for (int j = 0; j < COLUMNS; j++)
 		{
-			std::cout << _board[i][j] << " ";
+			std::cout << _board[j][i] << " ";
 		}
 		std::cout << std::endl;
 	}
@@ -229,7 +253,22 @@ void AssignCards(std::vector<card> shuffledCards, std::vector<PlayerInfo> &_play
 	}
 }
 
+Vector2 ThrowDice()
+{
+	return { rand() % 6 + 1, rand() % 6 + 1};
+}
 
+void StartTurn(int _turn)
+{
+	Vector2 results = ThrowDice();
+
+	bool hasClue = false;
+
+	if (results.x == 1 || results.y == 1)
+	{
+		hasClue = true;
+	}
+}
 
 int main()
 {
@@ -238,19 +277,18 @@ int main()
 	bool serverRunning = true;
 	bool matchStarted = false;
 
-	std::string board[ROWS][COLUMNS];
+	std::string board[COLUMNS][ROWS];
 
 	InitializeBoard(board);
 
-	
-	//initializeBoard();
+	//Inicializar todas las cartas
 	std::vector<card> shuffledCards;
 	std::vector<card> finalCards;
 	std::vector<card> full_Deck;
-	//Inicializar todas las cartas
 	initializeCards(full_Deck);
 	ShuffleCards(shuffledCards, full_Deck);
 	TakeFinalCards(finalCards, shuffledCards);
+
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
 	sf::Socket::Status status = listener.listen(55556);
@@ -259,9 +297,11 @@ int main()
 		std::cout << "Error al abrir listener\n";
 		exit(0);
 	}
+
 	// Creamos lista de clientes
 	int numPlayers = 0;
-
+	int playersReady = 0;
+	int turn = 1;
 	
 	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
 	std::list<sf::TcpSocket*> clients;
@@ -336,6 +376,19 @@ int main()
 								packet >> matchPlayers;
 								if (matchPlayers > 6) matchPlayers = 6;
 								else if (matchPlayers < 3) matchPlayers = 3;
+								break;
+							}
+							case Comands::READY_START:
+							{
+								playersReady++;
+
+								if (playersReady == numPlayers)
+								{
+									playersReady = 0;
+									//enviar torn: TURN_PlayerTurn_NumPlayers_Player1X_Player1Y_Player1R_Player1G_Player1B_Player1A_(repetir per cada player)_NumDice_HasClueCard_CardType
+									StartTurn(turn);
+								}
+								
 								break;
 							}
 							case Comands::GO_TO:

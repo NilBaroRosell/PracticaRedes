@@ -38,7 +38,7 @@ void Graphics::InitDungeon()
 	shape->setOutlineThickness(2.f);
 }
 
-void Graphics::DrawDungeon()
+void Graphics::DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf::Color> _colors)
 {
 	if (_window->isOpen())
 	{
@@ -76,6 +76,7 @@ void Graphics::DrawDungeon()
 			}
 		}
 		_window->clear();
+
 		for (int i = 0; i < W_WINDOW_TITLE; i++)
 		{
 			for (int j = 0; j < H_WINDOW_TITLE; j++)
@@ -94,6 +95,13 @@ void Graphics::DrawDungeon()
 			salas[i].Draw(*_window);
 			
 		}
+
+		for (int i = 0; i < _positions.size(); i++)
+		{
+			Sala a("", _positions[i].x, _positions[i].y, 1, 1, _colors[i]);
+			a.Draw(*_window);
+		}
+
 		centroMensajes.Draw(*_window);
 
 		/*sf::Vector2f position;
