@@ -9,6 +9,9 @@ public:
 	sf::Vector2f position;
 	sf::Color color;
 	std::vector<card> playerCards;
+	Vector2 numDice;
+	bool hasClue;
+	int direction;
 
 	PlayerInfo();
 	~PlayerInfo();

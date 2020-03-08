@@ -38,7 +38,7 @@ void Graphics::InitDungeon()
 	shape->setOutlineThickness(2.f);
 }
 
-void Graphics::DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf::Color> _colors)
+void Graphics::DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf::Color> _colors, bool _draw, int _direction)
 {
 	if (_window->isOpen())
 	{
@@ -58,20 +58,21 @@ void Graphics::DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf:
 				}
 				if (event.key.code == sf::Keyboard::Left)
 				{
-					std::cout << "LEFT\n";
+					_direction = 1;
 				}
 				else if (event.key.code == sf::Keyboard::Up)
 				{
-					std::cout << "UP\n";
+					_direction = 2;
 				}
 				else if (event.key.code == sf::Keyboard::Right)
 				{
-					std::cout << "RIGTH\n";
+					_direction = 3;
 				}
 				else if (event.key.code == sf::Keyboard::Down)
 				{
-					std::cout << "DOWN\n";
+					_direction = 4;
 				}
+				else _direction = 0;
 				break;
 			}
 		}
@@ -96,10 +97,13 @@ void Graphics::DrawDungeon(std::vector<sf::Vector2f> _positions, std::vector<sf:
 			
 		}
 
-		for (int i = 0; i < _positions.size(); i++)
+		if (_draw)
 		{
-			Sala a("", _positions[i].x, _positions[i].y, 1, 1, _colors[i]);
-			a.Draw(*_window);
+			for (int i = 0; i < _positions.size(); i++)
+			{
+				Sala a("", _positions[i].x, _positions[i].y, 1, 1, _colors[i]);
+				a.Draw(*_window);
+			}
 		}
 
 		centroMensajes.Draw(*_window);

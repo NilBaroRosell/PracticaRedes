@@ -45,7 +45,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "I";
+			_board[i][j] = "Invernadero";
 		}
 	}
 
@@ -54,7 +54,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "D";
+			_board[i][j] = "Sala de Billar";
 		}
 	}
 
@@ -63,7 +63,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "B";
+			_board[i][j] = "Biblioteca";
 		}
 	}
 
@@ -72,7 +72,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 0; j < 10; j++)
 		{
-			_board[i][j] = "E";
+			_board[i][j] = "Estudio";
 		}
 	}
 
@@ -81,16 +81,16 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 12; j < 18; j++)
 		{
-			_board[i][j] = "S";
+			_board[i][j] = "Sala de baile";
 		}
 	}
 
 	//vestibulo
 	for (int i = 30; i < 40; i++)
 	{
-		for (int j = 12; j < 18; j++)
+		for (int j = 12; j < 20; j++)
 		{
-			_board[i][j] = "V";
+			_board[i][j] = "Vestibulo";
 		}
 	}
 
@@ -99,7 +99,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 20; j < 30; j++)
 		{
-			_board[i][j] = "C";
+			_board[i][j] = "Cocina";
 		}
 	}
 
@@ -108,7 +108,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 20; j < 30; j++)
 		{
-			_board[i][j] = "O";
+			_board[i][j] = "Comedor";
 		}
 	}
 
@@ -117,7 +117,7 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 22; j < 30; j++)
 		{
-			_board[i][j] = "A";
+			_board[i][j] = "Salon";
 		}
 	}
 
@@ -126,41 +126,32 @@ void InitializeBoard(std::string _board[COLUMNS][ROWS])
 	{
 		for (int j = 12; j < 18; j++)
 		{
-			_board[i][j] = "M";
+			_board[i][j] = "Medio";
 		}
 	}
 
+	//nada
 	for (int i = 0; i < ROWS; i++)
 	{
 		for (int j = 0; j < COLUMNS; j++)
 		{
-			if (_board[j][i].empty()) _board[j][i] = "P";
+			if (_board[j][i].empty()) _board[j][i] = "Nada";
 		}
 	}
 }
 
 Vector2 GetRandomPosition(std::string _board[COLUMNS][ROWS])
 {
-	system("CLS");
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLUMNS; j++)
-		{
-			std::cout << _board[j][i] << " ";
-		}
-		std::cout << std::endl;
-	}
 	int rx, ry;
 	rx = rand() % COLUMNS - 1;
 	ry = rand() % ROWS - 1;
 	Vector2 pos;
-	if (_board[rx][ry] != "P") pos = GetRandomPosition(_board);
+	if (_board[rx][ry] != "Nada") pos = GetRandomPosition(_board);
 	else
 	{
 		pos.x = rx;
 		pos.y = ry;
 	}
-	std::cout << rx << ", " << ry << ": " << _board[rx][ry];
 	return pos;
 }
 
@@ -169,18 +160,9 @@ void SetRandomInitialPositions(std::string _board[COLUMNS][ROWS], std::vector<Pl
 	for (int i = 0; i < _numPlayers; i++)
 	{
 		Vector2 newPosition = GetRandomPosition(_board);
-		_board[newPosition.x][newPosition.y] = _players[i].nickname;
+		_board[newPosition.x][newPosition.y] = "Nada" + _players[i].nickname;
 		_players[i].position.x = newPosition.x;
 		_players[i].position.y = newPosition.y;
-	}
-
-	for (int i = 0; i < ROWS; i++)
-	{
-		for (int j = 0; j < COLUMNS; j++)
-		{
-			std::cout << _board[j][i] << " ";
-		}
-		std::cout << std::endl;
 	}
 }
 
@@ -253,23 +235,6 @@ void AssignCards(std::vector<card> shuffledCards, std::vector<PlayerInfo> &_play
 	}
 }
 
-Vector2 ThrowDice()
-{
-	return { rand() % 6 + 1, rand() % 6 + 1};
-}
-
-void StartTurn(int _turn)
-{
-	Vector2 results = ThrowDice();
-
-	bool hasClue = false;
-
-	if (results.x == 1 || results.y == 1)
-	{
-		hasClue = true;
-	}
-}
-
 int main()
 {
 	srand(time(NULL));
@@ -301,7 +266,8 @@ int main()
 	// Creamos lista de clientes
 	int numPlayers = 0;
 	int playersReady = 0;
-	int turn = 1;
+	int turn = 0;
+	int movesLeft = 0;
 	
 	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
 	std::list<sf::TcpSocket*> clients;
@@ -357,19 +323,19 @@ int main()
 							switch (comand)
 							{
 							case Comands::READY:
-							{packet >> data;
-							PlayerInfo newPlayer;
-							newPlayer.nickname = data;
-							players.push_back(newPlayer);
-							if (numPlayers == 1)
 							{
-								packet.clear();
-								packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
-								sf::TcpSocket& client = *clients.front();
-								client.send(packet);
-								matchPlayers = 1;
-							}
-							break;
+								packet >> data;
+								PlayerInfo newPlayer;
+								newPlayer.nickname = data;
+								players.push_back(newPlayer);
+								if (numPlayers == 1)
+								{
+									packet.clear();
+									packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
+									sf::TcpSocket& client = *clients.front();
+									client.send(packet);
+								}
+								break;
 							}
 							case Comands::NUM_PLAYERS:
 							{
@@ -380,22 +346,183 @@ int main()
 							}
 							case Comands::READY_START:
 							{
+								packet.clear();
 								playersReady++;
 
-								if (playersReady == numPlayers)
+								if (playersReady == matchPlayers)
 								{
 									playersReady = 0;
-									//enviar torn: TURN_PlayerTurn_NumPlayers_Player1X_Player1Y_Player1R_Player1G_Player1B_Player1A_(repetir per cada player)_NumDice_HasClueCard_CardType
-									StartTurn(turn);
+									int first = (rand() % 6) + 1;
+									int second = (rand() % 6) + 1;
+									movesLeft = first + second;
+									int i = 0;
+									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+									{
+										packet << static_cast<int32_t>(Comands::TURN) << players[turn].nickname << numPlayers << players[i].position.x << players[i].position.y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
+										for (int j = 0; j < numPlayers; j++)
+										{
+											if (j != i)
+											{
+												packet << players[j].position.x << players[j].position.y << playersColors[j].r << playersColors[j].g << playersColors[j].b << playersColors[j].a;
+											}
+										}
+										if (players[i].nickname == players[turn].nickname)
+										{
+											packet << first << second;
+											if (first == 1 || second == 1)
+											{
+												packet << true << static_cast<int32_t>(rand() % 3);
+											}
+											else packet << false;
+										}
+										sf::TcpSocket& client = **it;
+										client.send(packet);
+										packet.clear();
+										i++;
+									}
 								}
 								
 								break;
 							}
 							case Comands::GO_TO:
 							{
+								int direction;
+								packet >> direction;
 								packet.clear();
-								packet << static_cast<int32_t>(Comands::ROOM_FOUND);
-								client.send(packet);
+
+								if (movesLeft > 0)
+								{
+									int x = 0;
+									int y = 0;
+									switch (direction)
+									{
+										case 1:
+											x = players[turn].position.x - 1;
+											y = players[turn].position.y;
+											break;
+										case 2:
+											x = players[turn].position.x + 1;
+											y = players[turn].position.y;
+											break;
+										case 3:
+											x = players[turn].position.x;
+											y = players[turn].position.y - 1;
+											break;
+										case 4:
+											x = players[turn].position.x;
+											y = players[turn].position.y + 1;
+											break;
+										default:
+											break;
+									}
+
+									if (x < 0 || x >= COLUMNS || y < 0 || y >= ROWS || board[x][y] == "Medio")
+									{
+										packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::BLOCKED);
+										int i = 0;
+										if (i == turn)
+										{
+											sf::TcpSocket& client = **it;
+											client.send(packet);
+											packet.clear();
+											i++;
+											break;
+										}
+									}
+									else if (board[x][y] == "Invernadero" || board[x][y] == "Sala de Billar" || board[x][y] == "Biblioteca" || board[x][y] == "Estudio" || board[x][y] == "Sala de baile" || board[x][y] == "Vestibulo" || board[x][y] == "Cocina" || board[x][y] == "Comedor" || board[x][y] == "Salon")
+									{
+										packet << static_cast<int32_t>(Comands::ROOM_FOUND) << board[x][y];
+
+										Vector2 lastPos = Vector2(players[turn].position.x, players[turn].position.y);
+										for (int i = 0; i < players[turn].nickname.size(); i++)
+										{
+											board[lastPos.x][lastPos.y].pop_back();
+										}
+										board[x][y] += players[turn].nickname;
+										players[turn].position.x = x;
+										players[turn].position.y = y;
+
+										int i = 0;
+										for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+										{
+											if (i == turn)
+											{
+												sf::TcpSocket& client = **it;
+												client.send(packet);
+												packet.clear();
+												i++;
+												break;
+											}
+										}
+										numPlayers = 0;
+									}
+									else if (board[x][y] == "Nada")
+									{
+										if (movesLeft == 1)
+										{
+											packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::LAST) << players[turn].nickname << 1 << 2;
+										}
+										else
+										{
+											packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::MOVE) << players[turn].nickname << x << y;
+										}
+
+										Vector2 lastPos = Vector2(players[turn].position.x, players[turn].position.y);
+										for (int i = 0; i < players[turn].nickname.size(); i++)
+										{
+											board[lastPos.x][lastPos.y].pop_back();
+										}
+										board[x][y] += players[turn].nickname;
+										players[turn].position.x = x;
+										players[turn].position.y = y;
+
+										int i = 0;
+										for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+										{
+											if (i == turn)
+											{
+												sf::TcpSocket& client = **it;
+												client.send(packet);
+												packet.clear();
+												i++;
+												break;
+											}
+										}
+										numPlayers--;
+									}
+									else
+									{
+										packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::BLOCKED);
+										int i = 0;
+										for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+										{
+											if (i == turn)
+											{
+												sf::TcpSocket& client = **it;
+												client.send(packet);
+												packet.clear();
+												i++;
+												break;
+											}
+										}
+									}
+								}
+								else
+								{
+									packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::STOPPED);
+									int i = 0;
+									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+									{
+										if (i == turn)
+										{
+											sf::TcpSocket& client = **it;
+											client.send(packet);
+											packet.clear();
+											i++;
+											break;
+										}
+									}
+								}
 							}
 							case Comands::DEDUCTION:
 							{
@@ -434,6 +561,41 @@ int main()
 								}
 								break;
 							}
+							case Comands::TURN_FINISHED:
+							{
+								turn++;
+
+								int first = (rand() % 6) + 1;
+								int second = (rand() % 6) + 1;
+								movesLeft = first + second;
+								int i = 0;
+								for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+								{
+									packet << static_cast<int32_t>(Comands::TURN) << players[turn].nickname << numPlayers << players[i].position.x << players[i].position.y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
+									for (int j = 0; j < numPlayers; j++)
+									{
+										if (j != i)
+										{
+											packet << players[j].position.x << players[j].position.y << playersColors[j].r << playersColors[j].g << playersColors[j].b << playersColors[j].a;
+										}
+									}
+									if (players[i].nickname == players[turn].nickname)
+									{
+										packet << first << second;
+										if (first == 1 || second == 1)
+										{
+											packet << true << static_cast<int32_t>(rand() % 3);
+										}
+										else packet << false;
+									}
+									sf::TcpSocket& client = **it;
+									client.send(packet);
+									packet.clear();
+									i++;
+								}
+
+								break;
+							}
 							default:
 								break;
 							}
@@ -452,8 +614,9 @@ int main()
 				}
 
 				packet.clear();
-				if (!matchStarted) {
-					if (numPlayers == matchPlayers) //mirar si hay mas de 3 clientes
+				if (!matchStarted && matchPlayers != 0) 
+				{
+					if (numPlayers == matchPlayers)
 					{
 						matchStarted = true;
 						std::cout << numPlayers << std::endl;
@@ -467,9 +630,9 @@ int main()
 							int color[4]{ playersColors[i].r, playersColors[i].g, playersColors[i].b, playersColors[i].a };
 							players[i].color = playersColors[i];
 							packet << static_cast<int32_t>(Comands::START) << players.back().nickname << static_cast<int32_t>(players[i].playerCards.size()) << players[i].position.x << players[i].position.y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
-							for (auto it = players[i].playerCards.begin(); it != players[i].playerCards.end(); it++)
+							for (auto it2 = players[i].playerCards.begin(); it2 != players[i].playerCards.end(); it2++)
 							{
-								packet << it->name << static_cast<int32_t>(it->type);
+								packet << it2->name << static_cast<int32_t>(it2->type);
 							}
 							sf::TcpSocket& client = **it;
 							client.send(packet);

@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.45"
+#define SERVER_IP "192.168.1.131"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -49,12 +49,11 @@ int main()
 	std::vector<PlayerInfo> playersInfo;
 	std::vector<sf::Vector2f> playersPositions;
 	std::vector<sf::Color> playersColors;
-	/*
-	PlayerInfo playerInfo;*/
 	playersInfo.push_back({});
 	Graphics g;
 	
 	bool connected = false;
+	bool draw = false;
 
 	std::cout << "Bienvenido a CLUEDO, escoge tu nombre:\n";
 	std::cin >> playersInfo[0].nickname;
@@ -97,23 +96,16 @@ int main()
 				{
 					case Comands::CHOOSE_NUM_PLAYERS:
 					{
-						int numPlayers;
-						std::cout << "Choose how many player will play this game (from 3 to 6 players)" << std::endl;
-						std::cin >> numPlayers;
 						system("CLS");
-						if (numPlayers < 3)
+						int numPlayers = 0;
+						while (numPlayers < 3 || numPlayers > 6)
 						{
-							std::cout << "3 players will play this match" << std::endl;
-							numPlayers = 3;
+							std::cout << "Choose how many player will play this game (from 3 to 6 players)" << std::endl;
+							std::cin >> numPlayers;
 						}
-						else if (numPlayers > 6)
-						{
-							std::cout << "6 players will play this match" << std::endl;
-							numPlayers = 6;
-						}
-						else std::cout << numPlayers << " players will play this match" << std::endl;
 						packet.clear();
 						packet << static_cast<int32_t>(Comands::NUM_PLAYERS) << numPlayers;
+						socket.send(packet);
 						break;
 					}
 					case Comands::WAIT:
@@ -145,6 +137,197 @@ int main()
 						packet.clear();
 						packet << static_cast<int32_t>(Comands::READY_START);
 						socket.send(packet);
+						draw = true;
+						break;
+					}
+					case Comands::TURN:
+					{
+						for (int i = 0; i < playersInfo.size() - 1; i++)
+						{
+							playersInfo.pop_back();
+						}
+						int numPlayers = 0;
+						packet >> name >> numPlayers;
+						for (int i = 0; i < numPlayers; i++)
+						{
+							PlayerInfo newPlayer;
+							packet >> newPlayer.position.x >> newPlayer.position.y >> newPlayer.color.r >> newPlayer.color.g >> newPlayer.color.b >> newPlayer.color.a;
+							playersInfo.push_back(newPlayer);
+						}
+						if (name == playersInfo[0].nickname)
+						{
+							packet >> playersInfo[0].numDice.x >> playersInfo[0].numDice.y >> playersInfo[0].hasClue;
+							std::cout << "Your dice score is: " << playersInfo[0].numDice.x + playersInfo[0].numDice.y << "(" << playersInfo[0].numDice.x << ", " << playersInfo[0].numDice.y << ")" << std::endl;
+						}
+
+						if (playersInfo[0].hasClue)
+						{
+							CardType type;
+							packet >> aux;
+							type = (CardType)aux;
+							int numPlayers = 0;
+							switch (type)
+							{
+							case CardType::CHARACTER:
+								while (numPlayers < 1 || numPlayers > 6)
+								{
+									std::cout << "And you got a clue card. Choose a character (from 1 to 6):" << std::endl;
+									std::cout << "1. Prado" << std::endl;
+									std::cout << "2. Rubio" << std::endl;
+									std::cout << "3. Orquidea" << std::endl;
+									std::cout << "4. Celeste" << std::endl;
+									std::cout << "5. Mora" << std::endl;
+									std::cout << "6. Amapola" << std::endl;
+									std::cin >> numPlayers;
+									system("CLS");
+								}
+
+								break;
+							case CardType::WEAPON:
+								while (numPlayers < 1 || numPlayers > 6)
+								{
+									std::cout << "And you got a clue card. Choose a weapon (from 1 to 6):" << std::endl;
+									std::cout << "1. Candelabro" << std::endl;
+									std::cout << "2. Punal" << std::endl;
+									std::cout << "3. Tuberia de plomo" << std::endl;
+									std::cout << "4. Pistola" << std::endl;
+									std::cout << "5. Cuerda" << std::endl;
+									std::cout << "6. Herramienta" << std::endl;
+									std::cin >> numPlayers;
+								}
+								break;
+							case CardType::ROOM:
+								while (numPlayers < 1 || numPlayers > 9)
+								{
+									std::cout << "And you got a clue card. Choose a room (from 1 to 9):" << std::endl;
+									std::cout << "1. Sala de baile" << std::endl;
+									std::cout << "2. Sala de billar" << std::endl;
+									std::cout << "3. Invernadero" << std::endl;
+									std::cout << "4. Comedor" << std::endl;
+									std::cout << "5. Vestibulo" << std::endl;
+									std::cout << "6. Cocina" << std::endl;
+									std::cout << "7. Biblioteca" << std::endl;
+									std::cout << "8. Salon" << std::endl;
+									std::cout << "9. Estudio" << std::endl;
+									std::cin >> numPlayers;
+								}
+								break;
+							default:
+								break;
+							}
+						}
+
+						packet.clear();
+
+						if (name == playersInfo[0].nickname)
+						{
+							system("CLS");
+							std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+							std::cin >> playersInfo[0].direction;
+							packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
+							socket.send(packet);
+						}
+						break;
+					}
+					case Comands::MOVE:
+					{
+						system("CLS");
+						MoveOptions options;
+						packet >> aux;
+						options = (MoveOptions)aux;
+						switch (options)
+						{
+							case MoveOptions::MOVE:
+							{
+								packet >> name;
+								std::cout << name << std::endl;
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									if (playersInfo[i].nickname == name)
+									{
+										int aux1 = 0;
+										int aux2 = 0;
+										packet >> aux1 >> aux2;
+										playersInfo[i].position.x = aux1;
+										playersInfo[i].position.y = aux2;
+										std::cout << aux1 << ", " << aux2 << "......" << playersInfo[i].position.x << ", " << playersInfo[i].position.y;
+									}
+								}
+
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									playersPositions.push_back({});
+									playersPositions[i] = playersInfo[i].position;
+									playersColors.push_back({});
+									playersColors[i] = playersInfo[i].color;
+								}
+								g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									playersColors.pop_back();
+									playersPositions.pop_back();
+								}
+
+								packet.clear();
+								if (playersInfo[0].nickname == name)
+								{
+									std::cout << "MOVE, choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+									std::cin >> playersInfo[0].direction;
+									packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
+									socket.send(packet);
+								}
+								break;
+							}
+							case MoveOptions::LAST:
+							{
+								packet >> name;
+								std::cout << "MOVE" << std::endl;
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									if (playersInfo[i].nickname == name)
+									{
+										packet >> playersInfo[i].position.x >> playersInfo[i].position.y;
+										std::cout << playersInfo[i].position.x << ", " << playersInfo[i].position.y;
+									}
+								}
+
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									playersPositions.push_back({});
+									playersPositions[i] = playersInfo[i].position;
+									playersColors.push_back({});
+									playersColors[i] = playersInfo[i].color;
+								}
+								g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
+								for (int i = 0; i < playersInfo.size(); i++)
+								{
+									playersColors.pop_back();
+									playersPositions.pop_back();
+								}
+
+								packet.clear();
+								packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+								break;
+							}
+							case MoveOptions::BLOCKED:
+							{
+								packet.clear();
+								std::cout << "Blocked, choose another direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+								std::cin >> playersInfo[0].direction;
+								packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
+								socket.send(packet);
+								break;
+							}
+							case MoveOptions::STOPPED:
+							{
+								packet.clear();
+								std::cout << "No movements available" << std::endl;
+								packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+								break;
+							}
+							default:
+								break;
+						}
 						break;
 					}
 					case Comands::ROOM_FOUND:
@@ -283,7 +466,7 @@ int main()
 				playersColors.push_back({});
 				playersColors[i] = playersInfo[i].color;
 			}
-			g.DrawDungeon(playersPositions, playersColors);
+			g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
 			for (int i = 0; i < playersInfo.size(); i++)
 			{
 				playersColors.pop_back();
