@@ -127,7 +127,43 @@ int main()
 
 						packet >> playersInfo[0].position.x >> playersInfo[0].position.y >> playersInfo[0].color.r >> playersInfo[0].color.g >> playersInfo[0].color.b >> playersInfo[0].color.a;
 
-						std::cout << "At position-> " << playersInfo[0].position.x << "-" << playersInfo[0].position.y << std::endl;
+						std::cout << "Your initial position is: " << playersInfo[0].position.x << ", " << playersInfo[0].position.y;
+
+						sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
+
+						if (playersInfo[0].color.r == 255)
+						{
+							if (playersInfo[0].color.g == 255)
+							{
+								std::cout << " and your color is: yellow" << std::endl;
+							}
+							else
+							{
+								if (playersInfo[0].color.b == 255)
+								{
+									std::cout << " and your color is: magenta" << std::endl;
+								}
+								else 
+								{
+									std::cout << " and your color is: red" << std::endl;
+								}
+							}
+						}
+						else if (playersInfo[0].color.g == 255)
+						{
+							if (playersInfo[0].color.b == 255)
+							{
+								std::cout << " and your color is: cyan" << std::endl;
+							}
+							else
+							{
+								std::cout << " and your color is: green" << std::endl;
+							}
+						}
+						else if (playersInfo[0].color.b == 255)
+						{
+							std::cout << " and your color is: blue" << std::endl;
+						}
 
 						for (int i = 0; i < numCards; i++)
 						{
@@ -145,13 +181,14 @@ int main()
 					}
 					case Comands::TURN:
 					{
+						system("CLS");
 						while (!playersInfo.empty())
 						{
 							playersInfo.pop_back();
 						}
 						int numPlayers = 0;
 						packet >> name >> numPlayers;
-						std::cout << numPlayers << std::endl;
+						std::cout << "START TURN, " << name << " is playing" << std::endl;
 						for (int i = 0; i < numPlayers; i++)
 						{
 							PlayerInfo newPlayer;
@@ -169,7 +206,6 @@ int main()
 							playersPositions[i] = playersInfo[i].position;
 							playersColors.push_back({});
 							playersColors[i] = playersInfo[i].color;
-							std::cout << playersInfo[i].nickname << " Position: " << playersPositions[i].x << ", " << playersPositions[i].y << ". Color: " << playersColors[i].r << ", " << playersColors[i].g << ", " << playersColors[i].b << ", " << playersColors[i].a << std::endl;
 						}
 						g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
 						while (!playersColors.empty() && !playersPositions.empty())
@@ -182,62 +218,62 @@ int main()
 						{
 							packet >> playersInfo[0].numDice.x >> playersInfo[0].numDice.y >> playersInfo[0].hasClue;
 							std::cout << "Your dice score is: " << playersInfo[0].numDice.x + playersInfo[0].numDice.y << "(" << playersInfo[0].numDice.x << ", " << playersInfo[0].numDice.y << ")" << std::endl;
-						}
+							playersInfo[0].movesLeft = playersInfo[0].numDice.x + playersInfo[0].numDice.y;
 
-						if (playersInfo[0].hasClue)
-						{
-							CardType type;
-							packet >> aux;
-							type = (CardType)aux;
-							int numPlayers = 0;
-							switch (type)
+							if (playersInfo[0].hasClue)
 							{
-							case CardType::CHARACTER:
-								while (numPlayers < 1 || numPlayers > 6)
+								CardType type;
+								packet >> aux;
+								type = (CardType)aux;
+								int numPlayers = 0;
+								switch (type)
 								{
-									std::cout << "And you got a clue card. Choose a character (from 1 to 6):" << std::endl;
-									std::cout << "1. Prado" << std::endl;
-									std::cout << "2. Rubio" << std::endl;
-									std::cout << "3. Orquidea" << std::endl;
-									std::cout << "4. Celeste" << std::endl;
-									std::cout << "5. Mora" << std::endl;
-									std::cout << "6. Amapola" << std::endl;
-									std::cin >> numPlayers;
-									system("CLS");
-								}
+								case CardType::CHARACTER:
+									while (numPlayers < 1 || numPlayers > 6)
+									{
+										std::cout << "And you got a clue card. Choose a character (from 1 to 6):" << std::endl;
+										std::cout << "1. Prado" << std::endl;
+										std::cout << "2. Rubio" << std::endl;
+										std::cout << "3. Orquidea" << std::endl;
+										std::cout << "4. Celeste" << std::endl;
+										std::cout << "5. Mora" << std::endl;
+										std::cout << "6. Amapola" << std::endl;
+										std::cin >> numPlayers;
+									}
 
-								break;
-							case CardType::WEAPON:
-								while (numPlayers < 1 || numPlayers > 6)
-								{
-									std::cout << "And you got a clue card. Choose a weapon (from 1 to 6):" << std::endl;
-									std::cout << "1. Candelabro" << std::endl;
-									std::cout << "2. Punal" << std::endl;
-									std::cout << "3. Tuberia de plomo" << std::endl;
-									std::cout << "4. Pistola" << std::endl;
-									std::cout << "5. Cuerda" << std::endl;
-									std::cout << "6. Herramienta" << std::endl;
-									std::cin >> numPlayers;
+									break;
+								case CardType::WEAPON:
+									while (numPlayers < 1 || numPlayers > 6)
+									{
+										std::cout << "And you got a clue card. Choose a weapon (from 1 to 6):" << std::endl;
+										std::cout << "1. Candelabro" << std::endl;
+										std::cout << "2. Punal" << std::endl;
+										std::cout << "3. Tuberia de plomo" << std::endl;
+										std::cout << "4. Pistola" << std::endl;
+										std::cout << "5. Cuerda" << std::endl;
+										std::cout << "6. Herramienta" << std::endl;
+										std::cin >> numPlayers;
+									}
+									break;
+								case CardType::ROOM:
+									while (numPlayers < 1 || numPlayers > 9)
+									{
+										std::cout << "And you got a clue card. Choose a room (from 1 to 9):" << std::endl;
+										std::cout << "1. Sala de baile" << std::endl;
+										std::cout << "2. Sala de billar" << std::endl;
+										std::cout << "3. Invernadero" << std::endl;
+										std::cout << "4. Comedor" << std::endl;
+										std::cout << "5. Vestibulo" << std::endl;
+										std::cout << "6. Cocina" << std::endl;
+										std::cout << "7. Biblioteca" << std::endl;
+										std::cout << "8. Salon" << std::endl;
+										std::cout << "9. Estudio" << std::endl;
+										std::cin >> numPlayers;
+									}
+									break;
+								default:
+									break;
 								}
-								break;
-							case CardType::ROOM:
-								while (numPlayers < 1 || numPlayers > 9)
-								{
-									std::cout << "And you got a clue card. Choose a room (from 1 to 9):" << std::endl;
-									std::cout << "1. Sala de baile" << std::endl;
-									std::cout << "2. Sala de billar" << std::endl;
-									std::cout << "3. Invernadero" << std::endl;
-									std::cout << "4. Comedor" << std::endl;
-									std::cout << "5. Vestibulo" << std::endl;
-									std::cout << "6. Cocina" << std::endl;
-									std::cout << "7. Biblioteca" << std::endl;
-									std::cout << "8. Salon" << std::endl;
-									std::cout << "9. Estudio" << std::endl;
-									std::cin >> numPlayers;
-								}
-								break;
-							default:
-								break;
 							}
 						}
 
@@ -245,10 +281,14 @@ int main()
 
 						if (name == playersInfo[0].nickname)
 						{
-							system("CLS");
-							std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
-							std::cin >> playersInfo[0].direction;
-							std::cout << playersInfo[0].direction;
+							int direction = 0;
+							std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
+							while (direction < 1 || direction > 4)
+							{
+								std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+								std::cin >> direction;
+							}
+							playersInfo[0].direction = direction;
 							packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 							socket.send(packet);
 						}
@@ -258,14 +298,15 @@ int main()
 					{
 						system("CLS");
 						MoveOptions options;
-						packet >> aux;
+						int movesLeft = 0;
+						packet >> movesLeft >> aux;
+						playersInfo[0].movesLeft = movesLeft;
 						options = (MoveOptions)aux;
 						switch (options)
 						{
 							case MoveOptions::MOVE:
 							{
 								packet >> name;
-								std::cout << name << std::endl;
 								for (int i = 0; i < playersInfo.size(); i++)
 								{
 									if (playersInfo[i].nickname == name)
@@ -284,7 +325,6 @@ int main()
 									playersPositions[i] = playersInfo[i].position;
 									playersColors.push_back({});
 									playersColors[i] = playersInfo[i].color;
-									std::cout << playersInfo[i].nickname << " position: " << playersPositions[i].x << ", " << playersPositions[i].y << ". Color: " << playersColors[i].r << ", " << playersColors[i].g << playersColors[i].b << ", " << playersColors[i].a << std::endl;
 								}
 								g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
 								while (!playersColors.empty() && !playersPositions.empty())
@@ -296,8 +336,15 @@ int main()
 								packet.clear();
 								if (playersInfo[0].nickname == name)
 								{
-									std::cout << "MOVE, choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
-									std::cin >> playersInfo[0].direction;
+									std::cout << "You moved successfully" << std::endl;
+									std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
+									int direction = 0;
+									while (direction < 1 || direction > 4)
+									{
+										std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+										std::cin >> direction;
+									}
+									playersInfo[0].direction = direction;
 									packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 									socket.send(packet);
 								}
@@ -306,7 +353,8 @@ int main()
 							case MoveOptions::LAST:
 							{
 								packet >> name;
-								std::cout << "MOVE" << std::endl;
+								std::cout << "You moved successfully" << std::endl;
+								std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
 								for (int i = 0; i < playersInfo.size(); i++)
 								{
 									if (playersInfo[i].nickname == name)
@@ -354,8 +402,15 @@ int main()
 							case MoveOptions::BLOCKED:
 							{
 								packet.clear();
-								std::cout << "Blocked, choose another direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
-								std::cin >> playersInfo[0].direction;
+								std::cout << "You are blocked" << std::endl;
+								std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
+								int direction = 0;
+								while (direction < 1 || direction > 4)
+								{
+									std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
+									std::cin >> direction;
+								}
+								playersInfo[0].direction = direction;
 								packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 								socket.send(packet);
 								break;
@@ -363,7 +418,7 @@ int main()
 							case MoveOptions::STOPPED:
 							{
 								packet.clear();
-								std::cout << "No movements available" << std::endl;
+								std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
 								packet << static_cast<int32_t>(Comands::TURN_FINISHED);
 								break;
 							}

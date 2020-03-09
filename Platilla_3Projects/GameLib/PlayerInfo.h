@@ -12,6 +12,7 @@ public:
 	Vector2 numDice;
 	bool hasClue;
 	int direction;
+	int movesLeft;
 
 	PlayerInfo();
 	~PlayerInfo();
