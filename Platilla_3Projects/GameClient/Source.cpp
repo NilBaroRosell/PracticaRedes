@@ -55,8 +55,11 @@ int main()
 	bool connected = false;
 	bool draw = false;
 
+	std::string nickname;
+
 	std::cout << "Bienvenido a CLUEDO, escoge tu nombre:\n";
-	std::cin >> playersInfo[0].nickname;
+	std::cin >> nickname;
+	playersInfo[0].nickname = nickname;
 
 	sf::TcpSocket socket;
 	sf::Packet packet;
@@ -142,7 +145,7 @@ int main()
 					}
 					case Comands::TURN:
 					{
-						for (int i = 0; i < playersInfo.size() - 1; i++)
+						for (int i = 0; i < playersInfo.size(); i++)
 						{
 							playersInfo.pop_back();
 						}
@@ -152,8 +155,27 @@ int main()
 						{
 							PlayerInfo newPlayer;
 							packet >> newPlayer.position.x >> newPlayer.position.y >> newPlayer.color.r >> newPlayer.color.g >> newPlayer.color.b >> newPlayer.color.a;
+							if (i == 0)
+							{
+								newPlayer.nickname = nickname;
+							}
 							playersInfo.push_back(newPlayer);
 						}
+
+						for (int i = 0; i < playersInfo.size(); i++)
+						{
+							playersPositions.push_back({});
+							playersPositions[i] = playersInfo[i].position;
+							playersColors.push_back({});
+							playersColors[i] = playersInfo[i].color;
+						}
+						g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
+						while (!playersColors.empty() && !playersPositions.empty())
+						{
+							playersColors.pop_back();
+							playersPositions.pop_back();
+						}
+
 						if (name == playersInfo[0].nickname)
 						{
 							packet >> playersInfo[0].numDice.x >> playersInfo[0].numDice.y >> playersInfo[0].hasClue;
@@ -250,7 +272,6 @@ int main()
 										packet >> aux1 >> aux2;
 										playersInfo[i].position.x = aux1;
 										playersInfo[i].position.y = aux2;
-										std::cout << aux1 << ", " << aux2 << "......" << playersInfo[i].position.x << ", " << playersInfo[i].position.y;
 									}
 								}
 
@@ -260,9 +281,10 @@ int main()
 									playersPositions[i] = playersInfo[i].position;
 									playersColors.push_back({});
 									playersColors[i] = playersInfo[i].color;
+									std::cout << playersInfo[i].nickname << " position: " << playersPositions[i].x << ", " << playersPositions[i].y << ". Color: " << playersColors[i].r << ", " << playersColors[i].g << playersColors[i].b << ", " << playersColors[i].a << std::endl;
 								}
 								g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
-								for (int i = 0; i < playersInfo.size(); i++)
+								while (!playersColors.empty() && !playersPositions.empty())
 								{
 									playersColors.pop_back();
 									playersPositions.pop_back();
@@ -286,8 +308,11 @@ int main()
 								{
 									if (playersInfo[i].nickname == name)
 									{
-										packet >> playersInfo[i].position.x >> playersInfo[i].position.y;
-										std::cout << playersInfo[i].position.x << ", " << playersInfo[i].position.y;
+										int aux1 = 0;
+										int aux2 = 0;
+										packet >> aux1 >> aux2;
+										playersInfo[i].position.x = aux1;
+										playersInfo[i].position.y = aux2;
 									}
 								}
 
@@ -297,16 +322,30 @@ int main()
 									playersPositions[i] = playersInfo[i].position;
 									playersColors.push_back({});
 									playersColors[i] = playersInfo[i].color;
+									std::cout << playersInfo[i].nickname << " position: " << playersPositions[i].x << ", " << playersPositions[i].y << ". Color: " << playersColors[i].r << ", " << playersColors[i].g << playersColors[i].b << ", " << playersColors[i].a << std::endl;
 								}
 								g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
-								for (int i = 0; i < playersInfo.size(); i++)
+								while (!playersColors.empty() && !playersPositions.empty())
 								{
 									playersColors.pop_back();
 									playersPositions.pop_back();
 								}
 
+								bool isRoom;
+
+								packet >> isRoom;
 								packet.clear();
-								packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+
+								if (isRoom)
+								{
+									packet << static_cast<int32_t>(Comands::GO_TO);
+								}
+								else
+								{
+									packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+								}
+
+								socket.send(packet);
 								break;
 							}
 							case MoveOptions::BLOCKED:
@@ -467,7 +506,7 @@ int main()
 				playersColors[i] = playersInfo[i].color;
 			}
 			g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
-			for (int i = 0; i < playersInfo.size(); i++)
+			while (!playersColors.empty() && !playersPositions.empty())
 			{
 				playersColors.pop_back();
 				playersPositions.pop_back();

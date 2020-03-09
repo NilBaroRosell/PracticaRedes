@@ -431,7 +431,8 @@ int main()
 									}
 									else if (board[x][y] == "Invernadero" || board[x][y] == "Sala de Billar" || board[x][y] == "Biblioteca" || board[x][y] == "Estudio" || board[x][y] == "Sala de baile" || board[x][y] == "Vestibulo" || board[x][y] == "Cocina" || board[x][y] == "Comedor" || board[x][y] == "Salon")
 									{
-										packet << static_cast<int32_t>(Comands::ROOM_FOUND) << board[x][y];
+										packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::LAST) << players[turn].nickname << x << y << true;
+										movesLeft = 0;
 
 										Vector2 lastPos = Vector2(players[turn].position.x, players[turn].position.y);
 										for (int i = 0; i < players[turn].nickname.size(); i++)
@@ -454,18 +455,19 @@ int main()
 												break;
 											}
 										}
-										numPlayers = 0;
+										
 									}
 									else if (board[x][y] == "Nada")
 									{
 										if (movesLeft == 1)
 										{
-											packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::LAST) << players[turn].nickname << 1 << 2;
+											packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::LAST) << players[turn].nickname << x << y << false;
 										}
 										else
 										{
 											packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::MOVE) << players[turn].nickname << x << y;
 										}
+										movesLeft--;
 
 										Vector2 lastPos = Vector2(players[turn].position.x, players[turn].position.y);
 										for (int i = 0; i < players[turn].nickname.size(); i++)
@@ -488,7 +490,6 @@ int main()
 												break;
 											}
 										}
-										numPlayers--;
 									}
 									else
 									{
@@ -509,7 +510,14 @@ int main()
 								}
 								else
 								{
-									packet << static_cast<int32_t>(Comands::MOVE) << static_cast<int32_t>(MoveOptions::STOPPED);
+									Vector2 actualPos = Vector2(players[turn].position.x, players[turn].position.y);
+									std::string roomName = board[actualPos.x][actualPos.y];
+									for (int i = 0; i < players[turn].nickname.size(); i++)
+									{
+										roomName.pop_back();
+									}
+									std::cout << roomName << std::endl;
+									packet << static_cast<int32_t>(Comands::ROOM_FOUND) << roomName;
 									int i = 0;
 									for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 									{
@@ -564,6 +572,7 @@ int main()
 							case Comands::TURN_FINISHED:
 							{
 								turn++;
+								if (turn == matchPlayers) turn = 0;
 
 								int first = (rand() % 6) + 1;
 								int second = (rand() % 6) + 1;
@@ -571,6 +580,7 @@ int main()
 								int i = 0;
 								for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
 								{
+									system("CLS");
 									packet << static_cast<int32_t>(Comands::TURN) << players[turn].nickname << numPlayers << players[i].position.x << players[i].position.y << playersColors[i].r << playersColors[i].g << playersColors[i].b << playersColors[i].a;
 									for (int j = 0; j < numPlayers; j++)
 									{
