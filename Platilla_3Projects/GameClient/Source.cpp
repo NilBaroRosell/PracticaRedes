@@ -145,12 +145,13 @@ int main()
 					}
 					case Comands::TURN:
 					{
-						for (int i = 0; i < playersInfo.size(); i++)
+						while (!playersInfo.empty())
 						{
 							playersInfo.pop_back();
 						}
 						int numPlayers = 0;
 						packet >> name >> numPlayers;
+						std::cout << numPlayers << std::endl;
 						for (int i = 0; i < numPlayers; i++)
 						{
 							PlayerInfo newPlayer;
@@ -168,6 +169,7 @@ int main()
 							playersPositions[i] = playersInfo[i].position;
 							playersColors.push_back({});
 							playersColors[i] = playersInfo[i].color;
+							std::cout << playersInfo[i].nickname << " Position: " << playersPositions[i].x << ", " << playersPositions[i].y << ". Color: " << playersColors[i].r << ", " << playersColors[i].g << ", " << playersColors[i].b << ", " << playersColors[i].a << std::endl;
 						}
 						g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
 						while (!playersColors.empty() && !playersPositions.empty())
@@ -246,6 +248,7 @@ int main()
 							system("CLS");
 							std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
 							std::cin >> playersInfo[0].direction;
+							std::cout << playersInfo[0].direction;
 							packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 							socket.send(packet);
 						}

@@ -10,32 +10,22 @@ c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.
               T=float
           ]
 c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(240): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(400): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(402): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(401): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(403): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(404): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
-          with
-          [
-              T=float
-          ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(405): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(407): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
 c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(408): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
-          with
-          [
-              T=float
-          ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(409): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
@@ -50,47 +40,57 @@ c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(437): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(417): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(443): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(418): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(444): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(447): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(472): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(453): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(478): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(454): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(479): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(485): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(513): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(491): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(639): warning C4838: la conversión de 'T' en 'int' requiere una conversión de restricción
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(492): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
           with
           [
               T=float
           ]
-c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(639): warning C4244: 'inicializando': conversión de 'T' a 'int'; posible pérdida de datos
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(529): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(658): warning C4838: la conversión de 'T' en 'int' requiere una conversión de restricción
+          with
+          [
+              T=float
+          ]
+c:\users\nbr19\desktop\redes\practicaredes\platilla_3projects\gameserver\source.cpp(658): warning C4244: 'inicializando': conversión de 'T' a 'int'; posible pérdida de datos
           with
           [
               T=float
