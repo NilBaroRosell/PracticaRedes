@@ -384,6 +384,38 @@ int main()
 								
 								break;
 							}
+							case Comands::CLUE_REQUEST:
+							{
+								CardType type;
+								int numCard;
+								packet >> data;								
+								type = (CardType)aux;
+								packet.clear();
+
+								std::string cardHolder = "nobody";
+
+								for (int i = 0; i < players.size(); i++)
+								{
+									for (int j = 0; j < players[i].playerCards.size(); j++)
+									{
+										if (players[i].playerCards[j].name == data)
+										{
+											cardHolder = players[i].nickname;
+											break;
+										}
+									}
+								}
+
+								for (std::list<sf::TcpSocket*>::iterator it = clients.begin(); it != clients.end(); ++it)
+								{
+									packet << static_cast<int32_t>(Comands::CLUE_RESPONSE) << players[turn].nickname << data << cardHolder;
+									sf::TcpSocket& client = **it;
+									client.send(packet);
+									packet.clear();
+								}
+
+								break;
+							}
 							case Comands::GO_TO:
 							{
 								int direction;
@@ -535,6 +567,7 @@ int main()
 										i++;
 									}
 								}
+								break;
 							}
 							case Comands::DEDUCTION:
 							{
