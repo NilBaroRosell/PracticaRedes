@@ -648,16 +648,24 @@ int main()
 							}
 						}
 					}
-					int answer = 0;
-					std::cout << "SELECT A DENY ANSWER" << std::endl;
-					for (int i = 0; i < cardsPlayerCanDeny.size(); i++)
-						std::cout << i + 1 << "-" << cardsPlayerCanDeny[i].name << std::endl;
-					card denyCard;
-					while (answer < 1 || answer > cardsPlayerCanDeny.size()) {
-						std::cin >> answer;
+					if (!cardsPlayerCanDeny.empty()) {
+						int answer = 0;
+						std::cout << "SELECT A DENY ANSWER" << std::endl;
+						for (int i = 0; i < cardsPlayerCanDeny.size(); i++)
+							std::cout << i + 1 << "-" << cardsPlayerCanDeny[i].name << std::endl;
+						card denyCard;
+						while (answer < 1 || answer > cardsPlayerCanDeny.size()) {
+							std::cin >> answer;
+						}
+						denyCard = cardsPlayerCanDeny[answer - 1];
+						packet << static_cast<int32_t>(Comands::DENY_RESPONSE) << denyCard.name << static_cast<int32_t>(denyCard.type);
 					}
-					denyCard = cardsPlayerCanDeny[answer - 1];
-					packet << static_cast<int32_t>(Comands::DENY_RESPONSE) << denyCard.name << static_cast<int32_t>(denyCard.type);
+					else
+					{
+						system("CLS");
+						std::cout << "You don't have any cards to deny" << std::endl;
+						packet << static_cast<int32_t>(Comands::DEDUCTION) << true << cardsToDeny[0] << cardsToDeny[1] << cardsToDeny[2];
+					}
 					socket.send(packet);
 					break;
 				}
@@ -666,9 +674,159 @@ int main()
 					card denyCard;
 					int aux;
 					std::string nickname;
-					packet >> nickname >> denyCard.name >> aux;
-					denyCard.type = (CardType)aux;
-					std::cout << "Player " << nickname << " denied card-> " << denyCard.name << std::endl;
+					packet >> nickname;
+					if (nickname == "NONE")
+					{
+						std::string answer;
+						do
+						{
+							std::cout << "Nobody could deny any card. Do you want to make a formal accusation? (Y/N)" << std::endl;
+							data.clear();
+							std::cin >> answer;
+							system("CLS");
+						} while (answer != "y" && answer != "Y" && answer != "N" && answer != "n");
+						if (data == "y" || data == "Y") {
+							packet << static_cast<int32_t>(Comands::ACCUSATION);
+							std::vector<std::string> character, weapon, room;
+
+							for (auto _card : full_Deck)
+							{
+								switch (_card.type)
+								{
+								case CardType::CHARACTER:
+									character.push_back(_card.name);
+									break;
+								case CardType::WEAPON:
+									weapon.push_back(_card.name);
+									break;
+								case CardType::ROOM:
+									room.push_back(_card.name);
+									break;
+								default:
+									break;
+								}
+							}
+
+							std::cout << "SELECT A CHARACTER" << std::endl;
+							for (int i = 0; i < character.size(); i++)
+								std::cout << i + 1 << "-" << character[i] << std::endl;
+
+							int cardAnswer = 0;
+
+							while (cardAnswer < 1 || cardAnswer > character.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << character[cardAnswer - 1];
+
+							cardAnswer = 0;
+							system("CLS");
+							std::cout << "SELECT A WEAPON" << std::endl;
+							for (int i = 0; i < weapon.size(); i++)
+								std::cout << i + 1 << "-" << weapon[i] << std::endl;
+
+							while (cardAnswer < 1 || cardAnswer > weapon.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << weapon[cardAnswer - 1];
+
+							cardAnswer = 0;
+							system("CLS");
+							std::cout << "SELECT A ROOM" << std::endl;
+							for (int i = 0; i < room.size(); i++)
+								std::cout << i + 1 << "-" << room[i] << std::endl;
+
+							while (cardAnswer < 1 || cardAnswer > room.size()) {
+								std::cin >> cardAnswer;
+							}
+
+							packet << room[cardAnswer - 1];
+
+
+							system("CLS");
+						}
+						else packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+					}
+					else {
+						packet >> denyCard.name >> aux;
+						denyCard.type = (CardType)aux;
+						std::cout << "Player " << nickname << " denied card-> " << denyCard.name << std::endl;
+						packet << static_cast<int32_t>(Comands::TURN_FINISHED);
+					}
+					socket.send(packet);
+					break;
+				}
+				case Comands::ACCUSATION_RESULT:
+				{
+					std::string result, action;
+					packet >> result >> action;
+					packet.clear();
+					std::cout << result;
+					if (action == "ACCUSE")
+					{
+						packet << static_cast<int32_t>(Comands::ACCUSATION);
+						std::vector<std::string> character, weapon, room;
+
+						for (auto _card : full_Deck)
+						{
+							switch (_card.type)
+							{
+							case CardType::CHARACTER:
+								character.push_back(_card.name);
+								break;
+							case CardType::WEAPON:
+								weapon.push_back(_card.name);
+								break;
+							case CardType::ROOM:
+								room.push_back(_card.name);
+								break;
+							default:
+								break;
+							}
+						}
+
+						std::cout << "SELECT A CHARACTER" << std::endl;
+						for (int i = 0; i < character.size(); i++)
+							std::cout << i + 1 << "-" << character[i] << std::endl;
+
+						int cardAnswer = 0;
+
+						while (cardAnswer < 1 || cardAnswer > character.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << character[cardAnswer - 1];
+
+						cardAnswer = 0;
+						system("CLS");
+						std::cout << "SELECT A WEAPON" << std::endl;
+						for (int i = 0; i < weapon.size(); i++)
+							std::cout << i + 1 << "-" << weapon[i] << std::endl;
+
+						while (cardAnswer < 1 || cardAnswer > weapon.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << weapon[cardAnswer - 1];
+
+						cardAnswer = 0;
+						system("CLS");
+						std::cout << "SELECT A ROOM" << std::endl;
+						for (int i = 0; i < room.size(); i++)
+							std::cout << i + 1 << "-" << room[i] << std::endl;
+
+						while (cardAnswer < 1 || cardAnswer > room.size()) {
+							std::cin >> cardAnswer;
+						}
+
+						packet << room[cardAnswer - 1];
+
+
+						system("CLS");
+
+						socket.send(packet);
+					}
 					break;
 				}
 				}
