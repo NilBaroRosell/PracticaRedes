@@ -235,6 +235,15 @@ void AssignCards(std::vector<card> shuffledCards, std::vector<PlayerInfo> &_play
 	}
 }
 
+bool operator== (const PlayerInfo &p1, const PlayerInfo &p2)
+{
+	return (p1.color == p2.color);
+}
+bool operator!= (const PlayerInfo &p1, const PlayerInfo &p2)
+{
+	return !(p1.color == p2.color);
+}
+
 int main()
 {
 	srand(time(NULL));
@@ -268,12 +277,13 @@ int main()
 	int numPlayers = 0;
 	int playersReady = 0;
 	int turn = 0;
+	int accusationTurn = 0;
 	int movesLeft = 0;
 	
 	sf::Color playersColors[6]{ sf::Color(255, 0, 0, 255), sf::Color(0, 255, 0, 255), sf::Color(0, 0, 255, 255), sf::Color(255, 255, 0, 255), sf::Color(255, 0, 255, 255), sf::Color(0, 255, 255, 255) };
 	std::list<sf::TcpSocket*> clients;
 	std::vector<PlayerInfo> players;
-	PlayerInfo* deductingPlayer;
+	PlayerInfo* deductingPlayer = nullptr;
 	sf::SocketSelector selector;
 	sf::Packet packet;
 	selector.add(listener);
@@ -573,10 +583,6 @@ int main()
 							}
 							case Comands::DEDUCTION:
 							{
-								bool wantDeduction;
-								packet >> wantDeduction;
-								if (wantDeduction)
-								{
 									std::string _character, _gun, _room;
 									if (deductingPlayer == nullptr) {
 										deductingPlayer = new PlayerInfo(players[pIdx]);
@@ -602,11 +608,6 @@ int main()
 									}
 									sf::TcpSocket& leftPlayer = **leftPlayerIt;
 									leftPlayer.send(packet);
-								}
-								else
-								{
-									std::cout << "No deduction" << std::endl;
-								}
 								break;
 							}
 							case Comands::DENY_RESPONSE:
@@ -633,6 +634,13 @@ int main()
 							}
 							case Comands::ACCUSATION:
 							{
+								accusationTurn++;
+								if (accusationTurn == 3)
+								{
+									accusationMode = false;
+									matchStarted = false;
+									break;
+								}
 								accusationMode = true;
 								std::string accusationCards[3];
 								packet >> accusationCards[0] >> accusationCards[1] >> accusationCards[2];
@@ -646,22 +654,21 @@ int main()
 									}
 								}
 
-								packet << static_cast<int32_t>(Comands::ACCUSATION_RESULT);
-
 								if (counter == 3) {
-									packet << players[pIdx].nickname + " won the game." << "DISCONNECT";
+									packet << static_cast<int32_t>(Comands::ACCUSATION_RESULT) << players[pIdx].nickname + " won the game." << "DISCONNECT";
 									for (std::list<sf::TcpSocket*>::iterator it_aux = clients.begin(); it_aux != clients.end(); ++it_aux)
 									{
 										sf::TcpSocket& aux_client = **it_aux;
 										aux_client.send(packet);
-										aux_client.disconnect();
+										//clients.remove(&aux_client);
+										//clients
 									}
 
 								}
 								else {
 									packet << static_cast<int32_t>(Comands::ACCUSATION_RESULT) << players[pIdx].nickname + " lost the game." << "NULL";
 									client.send(packet);
-									client.disconnect();
+									//clients.remove(&client);
 									if (clients.size() >= 2)
 									{
 										std::list<sf::TcpSocket*>::iterator leftPlayerIt = it;
@@ -673,7 +680,6 @@ int main()
 										packet.clear();
 										packet << static_cast<int32_t>(Comands::ACCUSATION_RESULT) << players[pIdx].nickname + " lost the game." << "ACCUSE";
 										accusePlayer.send(packet);
-										accusePlayer.disconnect();
 										if (clients.size() >= 3)
 										{
 											packet.clear();

@@ -17,12 +17,3 @@ public:
 	PlayerInfo();
 	~PlayerInfo();
 };
-
-bool operator== (const PlayerInfo &p1, const PlayerInfo &p2)
-{
-	return (p1.color == p2.color);
-}
-bool operator!= (const PlayerInfo &p1, const PlayerInfo &p2)
-{
-	return !(p1.color == p2.color);
-}

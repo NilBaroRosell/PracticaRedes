@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "10.40.0.133"
+#define SERVER_IP "192.168.1.43"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -65,7 +65,7 @@ int main()
 	sf::TcpSocket socket;
 	sf::Packet packet;
 	sf::Socket::Status status = socket.connect(SERVER_IP, SERVER_PORT, sf::milliseconds(15.f));
-	std::vector<card> full_Deck;
+	std::vector<card> full_Deck, myDeck;
 
 
 	if (status != sf::Socket::Done)
@@ -172,6 +172,7 @@ int main()
 						playersInfo[0].playerCards.push_back({ name, type });
 						std::cout << playersInfo[0].playerCards.back().name << std::endl;
 					}
+					myDeck = playersInfo[0].playerCards;
 
 					packet.clear();
 					packet << static_cast<int32_t>(Comands::READY_START);
@@ -559,7 +560,7 @@ int main()
 					} while (data != "y" && data != "Y" && data != "N" && data != "n");
 					if (data == "y" || data == "Y")
 					{
-						packet << static_cast<int32_t>(Comands::DEDUCTION) << true;
+						packet << static_cast<int32_t>(Comands::DEDUCTION);
 
 						std::vector<std::string> character, weapon, room;
 
@@ -620,7 +621,7 @@ int main()
 
 						system("CLS");
 					}
-					else packet << static_cast<int32_t>(Comands::DEDUCTION) << false;
+					else packet << static_cast<int32_t>(Comands::TURN_FINISHED);
 					socket.send(packet);
 					break;
 				}
@@ -639,7 +640,7 @@ int main()
 					packet.clear();
 					std::vector<card> cardsPlayerCanDeny;
 					std::cout << "And you have: " << std::endl;
-					for (auto card : playersInfo[0].playerCards)
+					for (auto card : myDeck)
 					{
 						for (auto denyCard : cardsToDeny) {
 							if (card.name == denyCard) {
@@ -677,15 +678,16 @@ int main()
 					packet >> nickname;
 					if (nickname == "NONE")
 					{
+						packet.clear();
 						std::string answer;
 						do
 						{
 							std::cout << "Nobody could deny any card. Do you want to make a formal accusation? (Y/N)" << std::endl;
-							data.clear();
+							answer.clear();
 							std::cin >> answer;
 							system("CLS");
 						} while (answer != "y" && answer != "Y" && answer != "N" && answer != "n");
-						if (data == "y" || data == "Y") {
+						if (answer == "y" || answer == "Y") {
 							packet << static_cast<int32_t>(Comands::ACCUSATION);
 							std::vector<std::string> character, weapon, room;
 
@@ -752,6 +754,7 @@ int main()
 						packet >> denyCard.name >> aux;
 						denyCard.type = (CardType)aux;
 						std::cout << "Player " << nickname << " denied card-> " << denyCard.name << std::endl;
+						packet.clear();
 						packet << static_cast<int32_t>(Comands::TURN_FINISHED);
 					}
 					socket.send(packet);
@@ -762,7 +765,7 @@ int main()
 					std::string result, action;
 					packet >> result >> action;
 					packet.clear();
-					std::cout << result;
+					std::cout << result << std::endl;
 					if (action == "ACCUSE")
 					{
 						packet << static_cast<int32_t>(Comands::ACCUSATION);
