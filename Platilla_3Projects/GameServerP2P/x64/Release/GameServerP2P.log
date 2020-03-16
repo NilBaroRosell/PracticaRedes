@@ -1,7 +1,7 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: El directorio intermedio (x64\Release\) contiene archivos compartidos de otro proyecto (GameServer.vcxproj). Esto puede dar lugar a un comportamiento incorrecto de limpieza y recompilación.
   Source.cpp
   Generando código
-  1 of 160 functions ( 0.6%) were compiled, the rest were copied from previous compilation.
+  1 of 282 functions ( 0.4%) were compiled, the rest were copied from previous compilation.
     0 functions were new in current compilation
     0 functions had inline decision re-evaluated but remain unchanged
   Generación de código finalizada

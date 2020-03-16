@@ -12,12 +12,6 @@
 
 #define SERVER_IP "192.168.1.43"
 #define SERVER_PORT 55000
-#define FIRST_PORT 55100
-#define SECOND_PORT 55200
-#define THIRD_PORT 55300
-#define FOURTH_PORT 55400
-#define FIFTH_PORT 55500
-#define SIXTH_PORT 55600
 
 ///// CLIENT /////
 void initializeCards(std::vector<card> &_fullDeck)
@@ -62,6 +56,7 @@ int main()
 	bool connected = false;
 	bool draw = false;
 	bool firstTurn = true;
+	int matchPlayers = 0;
 
 	std::string nickname;
 
@@ -74,8 +69,6 @@ int main()
 	sf::Socket::Status status = socket.connect(SERVER_IP, SERVER_PORT, sf::milliseconds(15.f));
 	std::vector<card> full_Deck, myDeck;
 
-	sf::TcpListener listener;
-	sf::Socket::Status statusL;
 	sf::SocketSelector selector;
 	std::list<sf::TcpSocket*> playersSockets;
 
@@ -88,22 +81,176 @@ int main()
 	{
 		std::cout << "Se ha establecido conexion\n";
 		system("CLS");
-		packet << static_cast<int32_t>(Comands::READY) << playersInfo[0].nickname;
-		socket.send(packet);
-		connected = true;
+		//packet << static_cast<int32_t>(Comands::READY) << playersInfo[0].nickname;
+		//socket.send(packet);
 		int aux;
 		Comands comand;
 		std::string data;
 		std::string name;
 		CardType type;
+		bool waiting = true;
+		int clientPort;
+
+		while (waiting)
+		{
+			packet.clear();
+			if (socket.receive(packet) == sf::Socket::Done)
+			{
+				packet >> aux;
+				comand = (Comands)aux;
+				switch (comand)
+				{
+				case Comands::CHOOSE_NUM_PLAYERS:
+				{
+					system("CLS");
+					int numPlayers = 0;
+					while (numPlayers < 3 || numPlayers > 6)
+					{
+						std::cout << "Choose how many player will play this game (from 3 to 6 players)" << std::endl;
+						std::cin >> numPlayers;
+					}
+					packet.clear();
+					packet << static_cast<int32_t>(Comands::NUM_PLAYERS) << numPlayers;
+					socket.send(packet);
+					break;
+				}
+				case Comands::CONNECT:
+				{
+					packet >> aux;
+					int port;
+					for (int i = 0; i < aux; i++)
+					{
+						packet >> port >> data;
+						sf::TcpSocket* sock = new sf::TcpSocket;
+						sf::Socket::Status st = sock->connect(data, port, sf::seconds(5.f));
+						playersSockets.push_back(sock);
+					}
+					packet >> matchPlayers;
+					std::cout << matchPlayers << std::endl;
+					clientPort = socket.getLocalPort();
+					socket.disconnect();
+					waiting = false;
+					break;
+				}
+				case Comands::LISTEN:
+				{
+					packet >> matchPlayers;
+					std::cout << matchPlayers << std::endl;
+					clientPort = socket.getLocalPort();
+					socket.disconnect();
+					waiting = false;
+					break;
+				}
+				default:
+					break;
+				}
+			}
+		}
+		
+		packet.clear();
+
+		if (playersSockets.size() != matchPlayers - 1)
+		{
+			sf::TcpListener listener;
+			sf::Socket::Status statusL;
+
+			statusL = listener.listen(clientPort);
+			selector.add(listener);
+
+			if (statusL != sf::Socket::Done)
+			{
+				std::cout << "Error al abrir listener\n";
+				exit(0);
+			}
+			listener.setBlocking(false);
+
+			if (statusL == sf::Socket::Done)
+			{
+				while (playersSockets.size() < matchPlayers - 1)
+				{
+					if (statusL != sf::Socket::Done)
+					{
+						std::cout << "Error al recoger conexión nueva\n";
+					}
+
+					sf::TcpSocket *newPlayer = new sf::TcpSocket;
+					sf::Socket::Status statusNP = listener.accept(*newPlayer);
+					if (statusNP == sf::Socket::Done)
+					{
+						std::cout << "Conectado Nuevo Usuario" << std::endl;
+						playersSockets.push_back(newPlayer);
+					}
+				}
+			}
+		}
+
+		for (std::list<sf::TcpSocket*>::iterator it = playersSockets.begin(); it != playersSockets.end(); ++it)
+		{
+			sf::TcpSocket& sock = **it;
+
+			sock.setBlocking(false);
+		}
 
 		initializeCards(full_Deck);
 		g.InitDungeon();
 
+		/*for (std::list<sf::TcpSocket*>::iterator it = playersSockets.begin(); it != playersSockets.end(); ++it)
+		{
+			sf::TcpSocket& client = **it;
+			std::cout << (int)client.getLocalPort() << std::endl;
+		}*/
+
+		packet.clear();
+		packet << static_cast<int32_t>(Comands::WAIT) << nickname;
+
+		for (std::list<sf::TcpSocket*>::iterator it = playersSockets.begin(); it != playersSockets.end(); ++it)
+		{
+			sf::TcpSocket& pSocket = **it;
+			pSocket.send(packet);
+		}
+
+		packet.clear();
+
+		connected = true;
+
 		while (connected)
 		{
 			packet.clear();
-			if (selector.isReady(listener))
+
+			for (std::list<sf::TcpSocket*>::iterator it = playersSockets.begin(); it != playersSockets.end(); ++it)
+			{
+
+				sf::TcpSocket& pSocket = **it;
+				status = pSocket.receive(packet);
+				if (status == sf::Socket::NotReady)
+				{
+
+				}
+				else if (status == sf::Socket::Done)
+				{
+					int aux2;
+					Comands comand2;
+					std::string data2;
+					packet >> aux2;
+					comand2 = (Comands)aux2;
+					if (comand2 == Comands::WAIT)
+					{
+						packet >> data2;
+						std::cout << data2 << std::endl;
+						break;
+					}
+				}
+				else if (status == sf::Socket::Disconnected)
+				{
+					std::cout << "Elimino el socket que se ha desconectado\n";
+				}
+				else
+				{
+					std::cout << "Error al recibir\n";
+				}
+			}
+
+			/*if (selector.isReady(listener))
 			{
 				std::cout << "AAAAAAAAAAAAAAAAAAAAAAAAAAAAA" << std::endl;
 				// Si el listener esta "ready" ha habido una conexión
@@ -122,14 +269,14 @@ int main()
 				}
 			}
 			else
-			{
-				if (socket.receive(packet) == sf::Socket::Done)
+			{*/
+				if (1==2/*socket.receive(packet) == sf::Socket::Done*/)
 				{
 					packet >> aux;
 					comand = (Comands)aux;
 					switch (comand)
 					{
-					case Comands::CHOOSE_NUM_PLAYERS:
+					/*case Comands::CHOOSE_NUM_PLAYERS:
 					{
 						system("CLS");
 						int numPlayers = 0;
@@ -149,8 +296,8 @@ int main()
 						int port;
 						for (int i = 0; i < aux; i++)
 						{
-							packet >> port;
-							status = socket.connect(SERVER_IP, port, sf::milliseconds(15.f));
+							packet >> port >> data;
+							status = socket.connect(data, port, sf::milliseconds(15.f));
 							playersSockets.push_back(&socket);
 						}
 						break;
@@ -161,33 +308,14 @@ int main()
 						int port;
 						for (int i = 0; i < aux; i++)
 						{
-							packet >> port;
-							status = socket.connect(SERVER_IP, port, sf::milliseconds(15.f));
+							packet >> port >> data;
+							status = socket.connect(data, port, sf::milliseconds(15.f));
 							playersSockets.push_back(&socket);
 						}
 
 						std::cout << aux << std::endl;
 
-						switch (aux)
-						{
-						case 1:
-							statusL = listener.listen(SECOND_PORT);
-							break;
-						case 2:
-							statusL = listener.listen(THIRD_PORT);
-							break;
-						case 3:
-							statusL = listener.listen(FOURTH_PORT);
-							break;
-						case 4:
-							statusL = listener.listen(FIFTH_PORT);
-							break;
-						case 5:
-							statusL = listener.listen(SIXTH_PORT);
-							break;
-						default:
-							break;
-						}
+						statusL = listener.listen(socket.getLocalPort);
 
 						selector.add(listener);
 						if (statusL != sf::Socket::Done)
@@ -200,7 +328,7 @@ int main()
 					}
 					case Comands::LISTEN:
 					{
-						statusL = listener.listen(FIRST_PORT);
+						statusL = listener.listen(socket.getLocalPort);
 						selector.add(listener);
 						if (statusL != sf::Socket::Done)
 						{
@@ -209,7 +337,7 @@ int main()
 						}
 						listener.setBlocking(false);
 						break;
-					}
+					}*/
 					case Comands::WAIT:
 					{
 						/*packet >> data;
@@ -934,19 +1062,19 @@ int main()
 					//std::cout << username << " has joined the game" << std::endl;
 				}
 				for (int i = 0; i < playersInfo.size(); i++)
-			{
-				playersPositions.push_back({});
-				playersPositions[i] = playersInfo[i].position;
-				playersColors.push_back({});
-				playersColors[i] = playersInfo[i].color;
-			}
+				{
+					playersPositions.push_back({});
+					playersPositions[i] = playersInfo[i].position;
+					playersColors.push_back({});
+					playersColors[i] = playersInfo[i].color;
+				}
 				g.DrawDungeon(playersPositions, playersColors, draw, playersInfo[0].direction);
 				while (!playersColors.empty() && !playersPositions.empty())
-			{
-				playersColors.pop_back();
-				playersPositions.pop_back();
-			}
-			}
+				{
+					playersColors.pop_back();
+					playersPositions.pop_back();
+				}
+			//}
 		}
 		g.ClearDungeon();
 	}
