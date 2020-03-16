@@ -63,7 +63,7 @@ int main()
 					if (clientsInfo.empty())
 					{
 						packet.clear();
-						packet << static_cast<int32_t>(Comands::CHOOSE_NUM_PLAYERS);
+						packet << static_cast<int32_t>(Events::CHOOSE_NUM_PLAYERS);
 						client->send(packet);
 						std::cout << "Llega el cliente con puerto: " << client->getRemotePort() << std::endl;
 						clientsInfo.push_back({ client->getRemoteAddress().toString(), (int)client->getRemotePort() });
@@ -73,7 +73,7 @@ int main()
 					else if (clientsInfo.size() <= matchPlayers - 1)
 					{
 						packet.clear();
-						packet << static_cast<int32_t>(Comands::CONNECT) << (int)clientsInfo.size();
+						packet << static_cast<int32_t>(Events::CONNECT) << (int)clientsInfo.size();
 						for (auto it = clientsInfo.begin(); it != clientsInfo.end(); it++)
 						{
 							socketInfo aux = *it;
@@ -109,17 +109,17 @@ int main()
 						if (status == sf::Socket::Done)
 						{
 							int aux;
-							Comands comand;
+							Events events;
 							std::string data;
 							packet >> aux;
-							comand = (Comands)aux;
-							if(comand == Comands::NUM_PLAYERS)
+							events = (Events)aux;
+							if(events == Events::NUM_PLAYERS)
 							{
 								packet >> matchPlayers;
 								if (matchPlayers > 6) matchPlayers = 6;
 								else if (matchPlayers < 3) matchPlayers = 3;
 								packet.clear();
-								packet << static_cast<int32_t>(Comands::LISTEN) << matchPlayers;
+								packet << static_cast<int32_t>(Events::LISTEN) << matchPlayers;
 								sf::TcpSocket& client = *clients.front();
 								client.send(packet);
 								break;

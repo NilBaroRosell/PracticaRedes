@@ -5,6 +5,7 @@
 #include <PlayerInfo.h>
 #include <Types.h>
 #include <list>
+#define SERVER_PORT 55556
 
 ///// SERVER /////
 
@@ -266,7 +267,7 @@ int main()
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
-	sf::Socket::Status status = listener.listen(55556);
+	sf::Socket::Status status = listener.listen(SERVER_PORT);
 	if (status != sf::Socket::Done)
 	{
 		std::cout << "Error al abrir listener\n";
