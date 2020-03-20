@@ -350,8 +350,6 @@ int main()
 	else
 	{
 		std::cout << "Se ha establecido conexion\n";
-		//packet << static_cast<int32_t>(Events::READY) << playersInfo[0].nickname;
-		//socket.send(packet);
 		int aux;
 		Events events;
 		std::string data;
@@ -620,7 +618,6 @@ int main()
 						case Events::READY:
 						{
 							sf::Color c;
-							bool b;
 							packet >> data2 >> c.r >> c.g >> c.b >> c.a;
 							for (auto it = playersSockets.begin(); it != playersSockets.end(); ++it)
 							{
