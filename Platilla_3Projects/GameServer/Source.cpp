@@ -5,7 +5,6 @@
 #include <PlayerInfo.h>
 #include <Types.h>
 #include <list>
-#define SERVER_PORT 55556
 
 ///// SERVER /////
 
@@ -192,25 +191,30 @@ void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 	bool hasCharacter = false;
 	bool hasWeapon = false;
 	bool hasRoom = false;
+	std::vector<card>::iterator aux = _shuffledCards.end();
 
-	for (auto it = _shuffledCards.begin(); it != _shuffledCards.end(); it++)
+	int i = 0;
+	for (auto cards : _shuffledCards)
 	{
-		if (!hasCharacter && it->type == CardType::CHARACTER)
+		if (!hasCharacter && cards.type == CardType::CHARACTER)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasCharacter = true;
 		}
-		else if (!hasWeapon && it->type == CardType::WEAPON)
+		else if (!hasWeapon && cards.type == CardType::WEAPON)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasWeapon = true;
 		}
-		else if (!hasRoom && it->type == CardType::ROOM)
+		else if (!hasRoom && cards.type == CardType::ROOM)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasRoom = true;
 		}
 
@@ -218,6 +222,7 @@ void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 		{
 			break;
 		}
+		i++;
 	}
 }
 
@@ -267,7 +272,7 @@ int main()
 
 	// TCPListener para escuchar las conexiones entrantes
 	sf::TcpListener listener;
-	sf::Socket::Status status = listener.listen(SERVER_PORT);
+	sf::Socket::Status status = listener.listen(55556);
 	if (status != sf::Socket::Done)
 	{
 		std::cout << "Error al abrir listener\n";

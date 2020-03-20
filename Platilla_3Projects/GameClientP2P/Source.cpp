@@ -10,7 +10,7 @@
 #include <Types.h>
 #include <list>
 
-#define SERVER_IP "192.168.1.43"
+#define SERVER_IP "localhost"
 #define SERVER_PORT 55000
 
 ///// CLIENT /////
@@ -69,25 +69,30 @@ void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 	bool hasCharacter = false;
 	bool hasWeapon = false;
 	bool hasRoom = false;
+	std::vector<card>::iterator aux = _shuffledCards.end();
 
-	for (auto it = _shuffledCards.begin(); it != _shuffledCards.end(); it++)
+	int i = 0;
+	for (auto cards : _shuffledCards)
 	{
-		if (!hasCharacter && it->type == CardType::CHARACTER)
+		if (!hasCharacter && cards.type == CardType::CHARACTER)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasCharacter = true;
 		}
-		else if (!hasWeapon && it->type == CardType::WEAPON)
+		else if (!hasWeapon && cards.type == CardType::WEAPON)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasWeapon = true;
 		}
-		else if (!hasRoom && it->type == CardType::ROOM)
+		else if (!hasRoom && cards.type == CardType::ROOM)
 		{
-			_finalCards.push_back(*it);
-			_shuffledCards.erase(it);
+			_finalCards.push_back(cards);
+			_shuffledCards.erase(_shuffledCards.begin() + i);
+			aux = _shuffledCards.end();
 			hasRoom = true;
 		}
 
@@ -95,6 +100,7 @@ void TakeFinalCards(std::vector<card> &_finalCards, std::vector<card> &_shuffled
 		{
 			break;
 		}
+		i++;
 	}
 }
 
@@ -271,6 +277,8 @@ bool CheckNextMovement(int direction, PlayerInfo* player, std::string board[COLU
 		break;
 	}
 
+	Vector2 lastPos = Vector2(player->position.x, player->position.y);
+
 	if (x < 0 || x >= COLUMNS || y < 0 || y >= ROWS || board[x][y] == "Medio")
 	{
 		roomFound = false;
@@ -280,7 +288,7 @@ bool CheckNextMovement(int direction, PlayerInfo* player, std::string board[COLU
 	{
 		for (int i = 0; i < player->nickname.size(); i++)
 		{
-			board[(int)player->position.x][(int)player->position.y].pop_back();
+			board[lastPos.x][lastPos.y].pop_back();
 		}
 		board[x][y] += player->nickname;
 		player->position.x = x;
@@ -292,7 +300,7 @@ bool CheckNextMovement(int direction, PlayerInfo* player, std::string board[COLU
 	{
 		for (int i = 0; i < player->nickname.size(); i++)
 		{
-			board[(int)player->position.x][(int)player->position.y].pop_back();
+			board[lastPos.x][lastPos.y].pop_back();
 		}
 		board[x][y] += player->nickname;
 		player->position.x = x;
@@ -1268,7 +1276,7 @@ int main()
 									int i = 0;
 									for (auto it = playersSockets.begin(); it != playersSockets.end(); ++it)
 									{
-										if (i = t)
+										if (i == t)
 										{
 											Player& player = *it;
 											if (player.socket != nullptr)
@@ -1297,7 +1305,7 @@ int main()
 									int i = 0;
 									for (auto it = playersSockets.begin(); it != playersSockets.end(); ++it)
 									{
-										if (i = t)
+										if (i == t)
 										{
 											Player& player = *it;
 											if (player.socket != nullptr)
@@ -1541,11 +1549,6 @@ int main()
 
 						packet.clear();
 
-						for (int i = 0; i < playersSockets[index].info->nickname.size(); i++)
-						{
-							board[(int)playersSockets[index].info->position.x][(int)playersSockets[index].info->position.y].pop_back();
-						}
-
 						std::cout << "Room " << board[(int)playersSockets[index].info->position.x][(int)playersSockets[index].info->position.y] << " has been found" << std::endl;
 						
 						do
@@ -1617,6 +1620,12 @@ int main()
 
 
 							system("CLS");
+
+							int i = index + 1;
+							if (i == playersSockets.size()) i = 0;
+							Player& player = playersSockets[i];
+							sf::TcpSocket& pSocket = *player.socket;
+							pSocket.send(packet);
 						}
 						else
 						{
@@ -1629,7 +1638,7 @@ int main()
 							int i = 0;
 							for (auto it = playersSockets.begin(); it != playersSockets.end(); ++it)
 							{
-								if (i = t)
+								if (i == t)
 								{
 									Player& player = *it;
 									if (player.socket != nullptr)
@@ -1641,12 +1650,6 @@ int main()
 								i++;
 							}
 						}
-
-						int i = index + 1;
-						if (i == playersSockets.size()) i = 0;
-						Player& player = playersSockets[i];
-						sf::TcpSocket& pSocket = *player.socket;
-						pSocket.send(packet);
 					}
 					else
 					{
@@ -1674,7 +1677,7 @@ int main()
 							int i = 0;
 							for (auto it = playersSockets.begin(); it != playersSockets.end(); ++it)
 							{
-								if (i = t)
+								if (i == t)
 								{
 									Player& player = *it;
 									if (player.socket != nullptr)

@@ -1,0 +1,119 @@
+﻿C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\VC\VCTargets\Microsoft.CppBuild.targets(391,5): warning MSB8028: El directorio intermedio (x64\Debug\) contiene archivos compartidos de otro proyecto (GameClient.vcxproj). Esto puede dar lugar a un comportamiento incorrecto de limpieza y recompilación.
+  Source.cpp
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(30): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(31): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(32): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(33): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(41): warning C4244: 'inicializando': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(41): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(43): warning C4244: 'inicializando': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(43): warning C4244: '=': conversión de 'float' a 'int'; posible pérdida de datos
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\graphics.h(45): warning C4244: 'argumento': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(109): warning C4267: 'inicializando': conversión de 'size_t' a 'int'; posible pérdida de datos
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(250): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(251): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(261): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(262): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(265): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(266): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(269): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(270): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(273): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(274): warning C4244: '=': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(280): warning C4244: 'argumento': conversión de 'T' a 'int'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(295): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(296): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(308): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(309): warning C4244: '=': conversión de 'int' a 'T'; posible pérdida de datos
+          with
+          [
+              T=float
+          ]
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(324): warning C4244: 'argumento': conversión de 'time_t' a 'unsigned int'; posible pérdida de datos
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(347): warning C4244: 'argumento': conversión de 'float' a 'sf::Int32'; posible pérdida de datos
+c:\users\nil baro\desktop\practicaredes\practicaredes\platilla_3projects\gameclientp2p\source.cpp(367): warning C4101: 'type': variable local sin referencia
+  GameClientP2P.vcxproj -> C:\Users\Nil Baro\Desktop\PracticaRedes\PracticaRedes\Platilla_3Projects\x64\Debug\GameClientP2P.exe

@@ -9,7 +9,7 @@
 #include "Graphics.h"
 #include <Types.h>
 
-#define SERVER_IP "192.168.1.43"
+#define SERVER_IP "localhost"
 #define SERVER_PORT 55556
 
 ///// CLIENT /////
@@ -79,6 +79,7 @@ int main()
 		system("CLS");
 		packet << static_cast<int32_t>(Comands::READY) << playersInfo[0].nickname;
 		socket.send(packet);
+		socket.setBlocking(false);
 		connected = true;
 		int aux;
 		Comands comand;
@@ -370,7 +371,6 @@ int main()
 							packet.clear();
 							if (name == playersInfo[0].nickname)
 							{
-								system("CLS");
 								int direction = 0;
 								std::cout << playersInfo[0].movesLeft << " moves left" << std::endl;
 								while (direction < 1 || direction > 4)
@@ -378,6 +378,7 @@ int main()
 									std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
 									std::cin >> direction;
 								}
+								system("CLS");
 								playersInfo[0].direction = direction;
 								packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 								socket.send(packet);
@@ -390,7 +391,6 @@ int main()
 				}
 				case Comands::CLUE_RESPONSE:
 				{
-					system("CLS");
 					std::string playerWithCard;
 
 					packet >> name >> data >> playerWithCard;
@@ -416,7 +416,6 @@ int main()
 				}
 				case Comands::MOVE:
 				{
-					system("CLS");
 					MoveOptions options;
 					int movesLeft = 0;
 					packet >> movesLeft >> aux;
@@ -464,6 +463,7 @@ int main()
 								std::cout << "Choose a direction (1=left, 2=right, 3=up, 4=down)" << std::endl;
 								std::cin >> direction;
 							}
+							system("CLS");
 							playersInfo[0].direction = direction;
 							packet << static_cast<int32_t>(Comands::GO_TO) << playersInfo[0].direction;
 							socket.send(packet);
